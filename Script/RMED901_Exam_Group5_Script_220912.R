@@ -23,7 +23,7 @@ head(myData)
 skimr::skim(myData)
 ## we have 1214 rows; 31 columns
 
-
+#Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements
 
 
 
