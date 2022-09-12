@@ -22,7 +22,7 @@ head(myData)
 # exploring the data and have a look at all variables in rows; basic summary stats
 skimr::skim(myData)
 ## we have 1214 rows; 31 columns
-
+View(myData)
 ## We observe some variables starting with numbers, we want to rename these by using the pipe-rename. 
 myData1 <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
