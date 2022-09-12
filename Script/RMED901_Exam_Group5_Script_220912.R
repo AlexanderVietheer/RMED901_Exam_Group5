@@ -37,12 +37,15 @@ skimr::skim(myData)
 # we have 1214 rows; 31 columns
 
 ## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename. 
-myData1 <- myData %>% 
+myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
-         Dose_asa_325 = `325asa`)
+         Dose_asa_325 = `325asa`,
+         feature_type = `feature type`)
 
-skimr::skim(myData1)
 
+
+head(myData)
+tail(myData)
 # Tidy 2: We observed the variable "id" has the two parts, we checked the codebook 
 # Tidy 2: of the dataset, that the first integer 1-4 indicates site of the study
 # Tidy 2: so we use separate() function to separate the id column
@@ -51,12 +54,48 @@ myData <- myData %>%
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
+# look at all variables
+glimpse(myData) 
+# check the distinct values of a column
+as_factor(myData$feature_type)
+nrow(myData$feature_type) ## doesn't count the rows
+nrow(distinct(myData,id))
+head(myData)
+nrow(myData)
+## there are several variables with the same id
+## distinct of age and gender gives the rows that are unique for the combination of age and gender
+## seems that the id variable co tains also several consultations as the id is dublicated
+## seem the reason is the feature type column that should be  spread in 2 separate cols 
 
+# spred the feature type col in 2 separate
+myData <- myData %>% pivot_wider(names_from = `feature type`, values_from = `feature_value`)
+## now every id is appears only once
+## but warning and the 2 last cols are now list cols because not uniquely identified
 
+# GET AN OVERVIEW of missing values
+naniar::gg_miss_var(myData)
+## it seems the bleed variable contains a lot of missing values
+
+# check the number of missing values
+myData$bleed %>% is.na() %>% 
+  sum() /## 1158
+nrow(myData) ##1214
+## 95% of the bleed variable is missing (unnecessary variable!)
+
+# subset the dataset without bleed var
+myData <- myData %>% subset (select = -bleed)
+glimpse(myData)
+## the bleed variable is not part of the dataframe anymore
 
 # find out duplicate column?
+# are the last 2 variables expressing the same?
+myData %>% select(30:31)
+myData %>% distinct(`feature type`,`feature_value`)
+## it does not seem so. The 2 variables are expressing different values
 
-# find out some columns can include values from various features/measurements?
+
+
+
 
 
 #-------------------------------------------------------------------------------
