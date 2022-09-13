@@ -37,17 +37,9 @@ skimr::skim(myData)
 # we have 1214 rows; 31 columns
 
 ## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename. 
-
 ###This command is a nice way to check every column names(variables)
 colnames(myData)
 
-myData <- myData %>% 
-  rename(Dose_asa_81 = `81asa`,
-         Dose_asa_325 = `325asa`)
-
-skimr::skim(myData)
-
-###try this one
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
          Dose_asa_325 = `325asa`,
@@ -55,11 +47,10 @@ myData <- myData %>%
 
 
 head(myData)
-tail(myData) ###I noticed at this stage column feature typs does not exist and still come as feature_type
-# Tidy 2: We observed the variable "id" has the two parts, we checked the codebook 
+tail(myData)
+# Tidy 2: We observed the variable "id" has the two parts, we checked the codebook ----
 # Tidy 2: of the dataset, that the first integer 1-4 indicates site of the study
 # Tidy 2: so we use separate() function to separate the id column
-
 myData <- myData %>% 
   separate(col = id, 
            into = c("site", "id"), 
@@ -67,53 +58,52 @@ myData <- myData %>%
 # look at all variables
 glimpse(myData) 
 # check the distinct values of a column
-as_factor(myData$feature_type)
+as.factor(myData$feature_type)
 nrow(myData$feature_type) ## doesn't count the rows 
 
 nrow(distinct(myData,id))
-head(myData) ###from here I saw feature_type variable still the old name, why is that? 
+head(myData) 
 nrow(myData)
 View(myData)
 ## there are several variables with the same id
 ## distinct of age and gender gives the rows that are unique for the combination of age and gender
-## seems that the id variable co tains also several consultations as the id is dublicated
+## seems that the id variable contains also several consultations as the id is duplicated
 ## seem the reason is the feature type column that should be  spread in 2 separate cols 
 
 # spred the feature type col in 2 separate
-myData_mod <- myData %>% pivot_wider(names_from = `feature type`, values_from = feature_value)
+## We are keeping the same name of the object "myData". 
+myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = feature_value)
 ## now every id is appears only once
 ## but warning and the 2 last cols are now list cols because not uniquely identified
 glimpse(myData)
-myData %>% count(`feature type`)
-myData %>% count(`feature type`, feature_value)
+myData %>% count(`feature_type`)
+myData %>% count(`feature_type`, feature_value)
 
-### Dinastryp was on this and got error message: Error in `chr_as_locations()`:! Can't subset columns that don't exist.✖ Column `feature type` doesn't exist. 
-###This seems like typo? I notice before someone has renamed it. Should be feature_type, let's try again:
-myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) ###got warning message again
+## Tidy 3: 
 
+myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) 
 ##just looking again the data now
 head(myData)
-tail(myData) ###the column feature_type and feature_value are not found here
+tail(myData)
+summary(myData)
+###the column feature_type and feature_value are not found here
 skimr::skim(myData)
 
 glimpse(myData) 
-colnames(myData) ###Here I saw sod and pep as new columns, but feature_type/feature type and feature_value are gone
+colnames(myData) 
 
 # GET AN OVERVIEW of missing values
-naniar::gg_miss_var(myData) ### (dinastryp) Got error message and checked internet for suggestions - se below - I tried gg_miss_var_cumsum()
+naniar::gg_miss_var(myData) 
 ## it seems the bleed variable contains a lot of missing values
 
 # check the number of missing values
 myData$bleed %>% is.na() %>% 
   sum() /## 1158
-nrow(myData) ##1214
+  nrow(myData) ##1214
 ## 95% of the bleed variable is missing (unnecessary variable!)
 
-###try naniar with different function: gg_miss_var_cumsum()
-naniar::gg_miss_var_cumsum (myData) ###is that true bleed, pep and sod all have quite a lot missing data?
-
 myData$bleed %>% is.na() %>% 
-  sum() ##I got result 575 missing data for bleed
+  sum() 
 
 # subset the dataset without bleed var
 myData <- myData %>% subset (select = -bleed)
@@ -123,7 +113,7 @@ glimpse(myData)
 # find out duplicate column?
 # are the last 2 variables expressing the same?
 myData %>% select(30:31)
-myData %>% distinct(`feature type`,`feature_value`) ###here again feature type and feature_value were not found - if I checked from previous code it has been pivoted wider? so it should be sod and type or? 
+myData %>% distinct(`feature_type`,`feature_value`) 
 
 ## it does not seem so. The 2 variables are expressing different values
 
@@ -180,6 +170,17 @@ myData <- myData %>%
 arrange(myData, id, disp)
 
 #Read and join the additional dataset to your main dataset.
+antibodyData <- read_delim(here("DATA", "exam_joindata.txt"), delim = "\t")
+
+View(antibodyData) # Need to look over and tidy this data
+
+# need to seperate the columns "id" and "antibody"
+antibodyData <- antibodyData %>% 
+  separate(col = id, 
+           into = c("site", "id"), 
+           sep = "_")
+
+View(antibodyData)
 
 #Connect above steps with pipe.
 
