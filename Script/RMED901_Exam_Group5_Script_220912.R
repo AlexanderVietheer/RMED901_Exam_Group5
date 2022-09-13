@@ -37,12 +37,22 @@ skimr::skim(myData)
 # we have 1214 rows; 31 columns
 
 ## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename. 
+
+###This command is a nice way to check every column names(variables)
+colnames(myData)
+
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
          Dose_asa_325 = `325asa`)
 
 skimr::skim(myData)
-     
+
+###try this one
+myData <- myData %>% 
+  rename(Dose_asa_81 = `81asa`,
+         Dose_asa_325 = `325asa`,
+         feature_type = `feature type`)
+
 
 head(myData)
 tail(myData) ###I noticed at this stage column feature typs does not exist and still come as feature_type
