@@ -72,6 +72,17 @@ myData <- myData %>% pivot_wider(names_from = `feature type`, values_from = `fea
 ## now every id is appears only once
 ## but warning and the 2 last cols are now list cols because not uniquely identified
 
+## Dinastryp was on this and got error message: Error in `chr_as_locations()`:! Can't subset columns that don't exist.✖ Column `feature type` doesn't exist. 
+## This seems like typo? I notice before someone has renamed it. Should be feature_type, let's try again:
+myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`)
+
+##just looking again the data now
+head(myData)
+tail(myData)
+skimr::skim(myData)
+
+glimpse(myData) 
+
 # GET AN OVERVIEW of missing values
 naniar::gg_miss_var(myData)
 ## it seems the bleed variable contains a lot of missing values
