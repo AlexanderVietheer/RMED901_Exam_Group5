@@ -123,9 +123,21 @@ view(myData$pep) ###from visual seems these two columns sod and pep are the same
 myData %>% distinct(sod, pep)
 
 
-###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? 
+###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? (CONFIRMED)
+###I conclude the cokumn with various features/measurements was only id from original dataset(exam_nontidy.txt)
 
-
+###look again the data and checking if I could find unusual unique characters and/or numbers which may indicate some variables have different features/measurements
+colnames(myData)
+skimr::skim(myData)
+view(myData$sod_type)
+view(myData$status)
+head(myData$recpanc)
+tail(myData$recpanc)
+view(myData$Dose_asa_81)
+view(myData$Dose_asa_325)
+view(myData$brush)
+head(myData)
+tail(myData)
 
 #-------------------------------------------------------------------------------
 #-------------------Day6 Tasks: Tidy, adjust, and explore ----------------------
@@ -196,6 +208,8 @@ Fulldataset <- myData %>%
 #Explore your data.Explore and comment on the missing variables.
 is.na(Fulldataset)
 naniar::gg_miss_var((Fulldataset), facet = gender) # 400 patients are missing antibody-variable whilst around 600 patients are missing the bleeding-variable. There are more NAs in teh female-population. These high numbers of NAs can be problematic for further analyses? 
+###I do not understand why here is talking about bleeding-variable (bleed) again? I followed the commands above and it was already deleted(subset) because we agreed 95% missing so may be not relevant variable? (line 106 until 109)
+
 skimr::skim(Fulldataset)
 
 #Group by gender
