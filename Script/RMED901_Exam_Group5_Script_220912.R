@@ -63,6 +63,7 @@ nrow(myData$feature_type) ## doesn't count the rows
 nrow(distinct(myData,id))
 head(myData) ###from here I saw feature_type variable still the old name, why is that? 
 nrow(myData)
+View(myData)
 ## there are several variables with the same id
 ## distinct of age and gender gives the rows that are unique for the combination of age and gender
 ## seems that the id variable co tains also several consultations as the id is dublicated
