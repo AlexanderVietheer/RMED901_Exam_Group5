@@ -156,7 +156,12 @@ myData <- myData %>%
   mutate(riskpercentage = risk / 5.5)
 
 #  A column showing pep as No/Yes
-
+myData <- 
+  myData %>% 
+  mutate(Newpep = pep)
+myData <-
+  myData %>% 
+  mutate(Newpep = if_else(Newpep == "0", "No", "Yes"))
 
 #  A numeric column showing multiplication of age and risk for each person
 myData$age<-as.numeric(myData$age)
@@ -190,6 +195,8 @@ Fulldataset <- antibodyData %>%
   full_join(myData, by = c("id","site"))
 
 #Connect above steps with pipe.
+
+
 
 #Explore your data.Explore and comment on the missing variables.
 
