@@ -39,10 +39,17 @@ skimr::skim(myData)
 ## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename. 
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
+<<<<<<< HEAD
          Dose_asa_325 = `325asa`)
 
 skimr::skim(myData)
+=======
+         Dose_asa_325 = `325asa`,
+         feature_type = `feature type`) 
+>>>>>>> 3aa51c6356d89d5c3188b336e59ee0c2769e9b9e
 
+head(myData)
+tail(myData) ###I noticed at this stage column feature typs does not exist and still come as feature_type
 # Tidy 2: We observed the variable "id" has the two parts, we checked the codebook 
 # Tidy 2: of the dataset, that the first integer 1-4 indicates site of the study
 # Tidy 2: so we use separate() function to separate the id column
@@ -51,12 +58,66 @@ myData <- myData %>%
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
+# look at all variables
+glimpse(myData) 
+# check the distinct values of a column
+as_factor(myData$feature_type)
+nrow(myData$feature_type) ## doesn't count the rows 
 
+nrow(distinct(myData,id))
+head(myData) ###from here I saw feature_type variable still the old name, why is that? 
+nrow(myData)
+## there are several variables with the same id
+## distinct of age and gender gives the rows that are unique for the combination of age and gender
+## seems that the id variable co tains also several consultations as the id is dublicated
+## seem the reason is the feature type column that should be  spread in 2 separate cols 
 
+# spred the feature type col in 2 separate
+myData <- myData %>% pivot_wider(names_from = `feature type`, values_from = `feature_value`)
+## now every id is appears only once
+## but warning and the 2 last cols are now list cols because not uniquely identified
+
+### Dinastryp was on this and got error message: Error in `chr_as_locations()`:! Can't subset columns that don't exist.✖ Column `feature type` doesn't exist. 
+###This seems like typo? I notice before someone has renamed it. Should be feature_type, let's try again:
+myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) ###got warning message again
+
+##just looking again the data now
+head(myData)
+tail(myData) ###the column feature_type and feature_value are not found here
+skimr::skim(myData)
+
+glimpse(myData) 
+colnames(myData) ###Here I saw sod and pep as new columns, but feature_type/feature type and feature_value are gone
+
+# GET AN OVERVIEW of missing values
+naniar::gg_miss_var(myData) ### (dinastryp) Got error message and checked internet for suggestions - se below - I tried gg_miss_var_cumsum()
+## it seems the bleed variable contains a lot of missing values
+
+# check the number of missing values
+myData$bleed %>% is.na() %>% 
+  sum() /## 1158
+nrow(myData) ##1214
+## 95% of the bleed variable is missing (unnecessary variable!)
+
+###try naniar with different function: gg_miss_var_cumsum()
+naniar::gg_miss_var_cumsum (myData) ###is that true bleed, pep and sod all have quite a lot missing data?
+
+myData$bleed %>% is.na() %>% 
+  sum() ##I got result 575 missing data for bleed
+
+# subset the dataset without bleed var
+myData <- myData %>% subset (select = -bleed)
+glimpse(myData)
+## the bleed variable is not part of the dataframe anymore
 
 # find out duplicate column?
+# are the last 2 variables expressing the same?
+myData %>% select(30:31)
+myData %>% distinct(`feature type`,`feature_value`) ###here again feature type and feature_value were not found - if I checked from previous code it has been pivoted wider? so it should be sod and type or? 
 
-# find out some columns can include values from various features/measurements?
+## it does not seem so. The 2 variables are expressing different values
+
+###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? 
 
 
 #-------------------------------------------------------------------------------
