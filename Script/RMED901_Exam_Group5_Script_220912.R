@@ -43,15 +43,20 @@ colnames(myData)
 
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
-<<<<<<< HEAD
          Dose_asa_325 = `325asa`)
 
 skimr::skim(myData)
+<<<<<<< HEAD
 =======
          Dose_asa_325 = `325asa`,
          feature_type = `feature type`) 
 >>>>>>> 3aa51c6356d89d5c3188b336e59ee0c2769e9b9e ###I dont know why this is like this? Try to rewrite down again...
 
+=======
+     
+>>>>>>> 37be7a918bdfbf286413eaf7da570770039a229e
+
+###try this one
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
          Dose_asa_325 = `325asa`,
@@ -83,9 +88,12 @@ nrow(myData)
 ## seem the reason is the feature type column that should be  spread in 2 separate cols 
 
 # spred the feature type col in 2 separate
-myData <- myData %>% pivot_wider(names_from = `feature type`, values_from = `feature_value`)
+myData_mod <- myData %>% pivot_wider(names_from = `feature type`, values_from = feature_value)
 ## now every id is appears only once
 ## but warning and the 2 last cols are now list cols because not uniquely identified
+glimpse(myData)
+myData %>% count(`feature type`)
+myData %>% count(`feature type`, feature_value)
 
 ### Dinastryp was on this and got error message: Error in `chr_as_locations()`:! Can't subset columns that don't exist.✖ Column `feature type` doesn't exist. 
 ###This seems like typo? I notice before someone has renamed it. Should be feature_type, let's try again:
