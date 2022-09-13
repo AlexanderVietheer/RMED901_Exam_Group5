@@ -185,17 +185,39 @@ antibodyData <- antibodyData %>%
            into = c("site", "id"), 
            sep = "_")
 
-View(antibodyData)
+View(antibodyData) 
 
-#Connect above steps with pipe.
+Fulldataset <- antibodyData %>% 
+  full_join(myData, by = c("site", "id"))
+
+#Connect above steps with pipe. If using this pipe, do not use to code above. 
+Fulldataset <- myData %>% 
+  full_join(antibodyData %>% 
+              separate(col = id, 
+                       into = c("site", "id"), 
+                       sep = "_"), by = c("id", "site"))
 
 #Explore your data.Explore and comment on the missing variables.
+is.na(Fulldataset)
+naniar::gg_miss_var((Fulldataset), facet = gender) # 400 patients are missing antibody-variable whilst around 600 patients are missing the bleeding-variable. There are more NAs in teh female-population. These high numbers of NAs can be problematic for further analyses? 
+skimr::skim(Fulldataset)
+
+#Group by gender
+Fulldataset %>% 
+  group_by(gender) %>% 
+  count()
+# There are 476 females and 126 males in the dataset, this could be an explanation for the big difference in NAs between the genders. 
 
 #Stratify your data by a categorical column and report min, max, mean and sd of a numeric column.
+Fulldataset %>% 
+  group_by(gender) %>% 
+  summarise(min(antibody, na.rm = T),max(antibody, na.rm = T), mean(antibody, na.rm = T), sd(antibody, na.rm = T))
 
 #Stratify your data by a categorical column and report min, max, mean and sd of a numeric column for a defined set of observations - use pipe!
 
 #Only for persons with recpanc == 0
+Fulldataset %>% 
+  group_by(recpanc == 0)
 
 #Only for persons recruited in site 3
 
