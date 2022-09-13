@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------
 #-------------------Day 5 tasks:Read and tidy the dataset ----------------------
-
 #write all the commands and document!
 #tips:
 #some columns may need to be separated
@@ -15,14 +14,14 @@
 #some column names can contain spaces or start with numbers
 #some columns can include values from various features/measurements
 
-# loading packages
+#loading packages
 library(tidyverse)
 library(here)
 
 #read the data set
 myData <- read_csv(here("DATA", "exam_nontidy.txt"))
 
-# exploring the data set
+#exploring the data set
 head(myData)
 
 # we have to read in the data set sensitive for tabulator delimiter
@@ -138,7 +137,7 @@ myData %>% distinct(sod, pep)
 #-------------------Day6 Tasks: Tidy, adjust, and explore ----------------------
 
 #Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent
-#Use subset() fuction to delete column by name
+#Use subset() fuction to delete column by name (SOLVED)
 
 df=subset(myData, select = -c(acinar, train, amp, pdstent))
 
@@ -157,7 +156,7 @@ myData <- myData %>%
   mutate(riskpercentage = risk / 5.5)
 
 #  A column showing pep as No/Yes
-##??? Did not find the column pep?
+
 
 #  A numeric column showing multiplication of age and risk for each person
 myData$age<-as.numeric(myData$age)
