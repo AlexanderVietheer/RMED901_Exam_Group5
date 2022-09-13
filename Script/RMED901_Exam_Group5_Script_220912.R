@@ -48,7 +48,7 @@ myData <- myData %>%
 
 head(myData)
 tail(myData)
-# Tidy 2: We observed the variable "id" has the two parts, we checked the codebook 
+# Tidy 2: We observed the variable "id" has the two parts, we checked the codebook ----
 # Tidy 2: of the dataset, that the first integer 1-4 indicates site of the study
 # Tidy 2: so we use separate() function to separate the id column
 myData <- myData %>% 
@@ -118,7 +118,7 @@ glimpse(myData)
 # find out duplicate column?
 # are the last 2 variables expressing the same?
 myData %>% select(30:31)
-myData %>% distinct(`feature type`,`feature_value`) ###here again feature type and feature_value were not found - if I checked from previous code it has been pivoted wider? so it should be sod and type or? 
+myData %>% distinct(`feature_type`,`feature_value`) ###here again feature type and feature_value were not found - if I checked from previous code it has been pivoted wider? so it should be sod and type or? 
 
 ## it does not seem so. The 2 variables are expressing different values
 
@@ -175,6 +175,17 @@ myData <- myData %>%
 arrange(myData, id, disp)
 
 #Read and join the additional dataset to your main dataset.
+antibodyData <- read_delim(here("DATA", "exam_joindata.txt"), delim = "\t")
+
+View(antibodyData) # Need to look over and tidy this data
+
+# need to seperate the columns "id" and "antibody"
+antibodyData <- antibodyData %>% 
+  separate(col = id, 
+           into = c("site", "id"), 
+           sep = "_")
+
+View(antibodyData)
 
 #Connect above steps with pipe.
 
