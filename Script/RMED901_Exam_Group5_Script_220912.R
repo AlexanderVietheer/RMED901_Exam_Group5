@@ -46,15 +46,6 @@ myData <- myData %>%
          Dose_asa_325 = `325asa`)
 
 skimr::skim(myData)
-<<<<<<< HEAD
-=======
-         Dose_asa_325 = `325asa`,
-         feature_type = `feature type`) 
->>>>>>> 3aa51c6356d89d5c3188b336e59ee0c2769e9b9e ###I dont know why this is like this? Try to rewrite down again...
-
-=======
-     
->>>>>>> 37be7a918bdfbf286413eaf7da570770039a229e
 
 ###try this one
 myData <- myData %>% 
