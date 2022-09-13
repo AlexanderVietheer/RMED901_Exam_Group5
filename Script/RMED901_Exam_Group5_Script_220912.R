@@ -187,6 +187,9 @@ antibodyData <- antibodyData %>%
 
 View(antibodyData)
 
+Fulldataset <- antibodyData %>%
+  full_join(myData, by = c("id","site"))
+
 #Connect above steps with pipe.
 
 #Explore your data.Explore and comment on the missing variables.
