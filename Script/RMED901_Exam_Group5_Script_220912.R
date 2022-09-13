@@ -68,7 +68,7 @@ View(myData)
 ## seems that the id variable contains also several consultations as the id is duplicated
 ## seem the reason is the feature type column that should be  spread in 2 separate cols 
 
-# spred the feature type col in 2 separate
+## Tidy 3: separate the feature type col in 2 separate
 ## We are keeping the same name of the object "myData". 
 myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = feature_value)
 ## now every id is appears only once
@@ -77,14 +77,10 @@ glimpse(myData)
 myData %>% count(`feature_type`)
 myData %>% count(`feature_type`, feature_value)
 
-## Tidy 3:---- 
-
-myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) 
 ##just looking again the data now
 head(myData)
 tail(myData)
 summary(myData)
-###the column feature_type and feature_value are not found here
 skimr::skim(myData)
 
 glimpse(myData) 
@@ -125,6 +121,7 @@ myData %>% distinct(sod, pep)
 
 ###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? (CONFIRMED)
 ###I conclude the cokumn with various features/measurements was only id from original dataset(exam_nontidy.txt)
+#--- (Shanshan)I found some values in the sod a d pep column contain the some vector, for example c(0,0), c(o,0), is this the same on your dataset? Maybe we need to solve it? 
 
 ###look again the data and checking if I could find unusual unique characters and/or numbers which may indicate some variables have different features/measurements
 colnames(myData)
