@@ -57,14 +57,13 @@ myData <- myData %>%
            sep = "_")
 # look at all variables
 glimpse(myData) 
-# check the distinct values of a column
-as.factor(myData$feature_type)
-nrow(myData$feature_type) ## doesn't count the rows 
 
-nrow(distinct(myData,id))
+ 
+
+myData <- distinct(myData)
 head(myData) ###from here I saw feature_type variable still the old name, why is that? 
 nrow(myData)
-View(myData)
+
 ## there are several variables with the same id
 ## distinct of age and gender gives the rows that are unique for the combination of age and gender
 ## seems that the id variable contains also several consultations as the id is duplicated
@@ -72,17 +71,12 @@ View(myData)
 
 # spred the feature type col in 2 separate
 ## We are keeping the same name of the object "myData". 
-myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = feature_value)
+myData <- myData %>% pivot_wider(names_from = feature_type, values_from = feature_value)
 ## now every id is appears only once
 ## but warning and the 2 last cols are now list cols because not uniquely identified
 glimpse(myData)
-myData %>% count(`feature_type`)
-myData %>% count(`feature_type`, feature_value)
 
-## Tidy 3: 
-### Dinastryp was on this and got error message: Error in `chr_as_locations()`:! Can't subset columns that don't exist.✖ Column `feature type` doesn't exist. 
-###This seems like typo? I notice before someone has renamed it. Should be feature_type, let's try again:
-myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) ###got warning message again
+
 
 ##just looking again the data now
 head(myData)
@@ -118,7 +112,7 @@ glimpse(myData)
 # find out duplicate column?
 # are the last 2 variables expressing the same?
 myData %>% select(30:31)
-myData %>% distinct(`feature type`,`feature_value`) ###here again feature type and feature_value were not found - if I checked from previous code it has been pivoted wider? so it should be sod and type or? 
+
 
 ## it does not seem so. The 2 variables are expressing different values
 
@@ -133,7 +127,7 @@ myData %>% distinct(sod, pep)
 
 ###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? 
 
-
+glimpse(myData)
 #-------------------------------------------------------------------------------
 #-------------------Day6 Tasks: Tidy, adjust, and explore ----------------------
 
@@ -176,11 +170,60 @@ arrange(myData, id, disp)
 
 #Read and join the additional dataset to your main dataset.
 
-#Connect above steps with pipe.
+ joinData <- read_delim(here("DATA", "exam_joindata.txt"), delim = "\t") # read inn join Data
+ 
+ head (joinData) 
+ 
+ # make the id variable a key variable
+ 
+ joinData <- joinData %>% 
+   separate(col = id, 
+            into = c("site", "id"), 
+            sep = "_")
+ head(joinData)
+ distinct(joinData)
+ 
+ fullData <- myData %>%
+   full_join(joinData, by = c("id", "site"))
 
+#check that number of rows is prevailed 
+ fullData
+ myData
+ joinData
+ 
+#Connect above steps with pipe. This works only when you read in the joindata set again
+ fullData <- myData %>%
+   full_join(joinData %>% 
+               separate(col = id, 
+                        into = c("site", "id"), 
+                        sep = "_"), by = c("id", "site"))
 #Explore your data.Explore and comment on the missing variables.
-
+ 
+ is.na(fullData)
+ 
+ # looking if the missing is gender specific
+ naniar::gg_miss_var((fullData), facet = gender) 
+ ## it seems that there are more antibodies missing for females
+ fullData %>% 
+   group_by(gender) %>% 
+   count() 
+ ## the missingness is related to a fewer number of males
+ 
+ skimr::skim(fullData)
+ 
+ 
+ fullData %>% 
+   summarise(min(antibody, na.rm=T),max(antibody, na.rm=T), mean(antibody, na.rm=T), sd(antibody, na.rm=T))
+ 
 #Stratify your data by a categorical column and report min, max, mean and sd of a numeric column.
+
+ 
+ fullData %>% 
+   group_by(gender) %>% 
+   summarise(min(antibody, na.rm=T),max(antibody, na.rm=T), mean(antibody, na.rm=T), sd(antibody, na.rm=T))
+ 
+ head(fullData)
+ glimpse(fullData)
 
 #Stratify your data by a categorical column and report min, max, mean and sd of a numeric column for a defined set of observations - use pipe!
 
