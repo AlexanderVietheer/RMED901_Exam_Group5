@@ -61,7 +61,7 @@ as.factor(myData$feature_type)
 nrow(myData$feature_type) ## doesn't count the rows 
 
 nrow(distinct(myData,id))
-head(myData) ###from here I saw feature_type variable still the old name, why is that? 
+head(myData) 
 nrow(myData)
 View(myData)
 ## there are several variables with the same id
@@ -79,10 +79,8 @@ myData %>% count(`feature_type`)
 myData %>% count(`feature_type`, feature_value)
 
 ## Tidy 3: 
-### Dinastryp was on this and got error message: Error in `chr_as_locations()`:! Can't subset columns that don't exist.✖ Column `feature type` doesn't exist. 
-###This seems like typo? I notice before someone has renamed it. Should be feature_type, let's try again:
-myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) ###got warning message again
 
+myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) 
 ##just looking again the data now
 head(myData)
 tail(myData)
@@ -91,23 +89,20 @@ summary(myData)
 skimr::skim(myData)
 
 glimpse(myData) 
-colnames(myData) ###Here I saw sod and pep as new columns, but feature_type/feature type and feature_value are gone
+colnames(myData) 
 
 # GET AN OVERVIEW of missing values
-naniar::gg_miss_var(myData) ### (dinastryp) Got error message and checked internet for suggestions - se below - I tried gg_miss_var_cumsum()
+naniar::gg_miss_var(myData) 
 ## it seems the bleed variable contains a lot of missing values
 
 # check the number of missing values
 myData$bleed %>% is.na() %>% 
   sum() /## 1158
-nrow(myData) ##1214
+  nrow(myData) ##1214
 ## 95% of the bleed variable is missing (unnecessary variable!)
 
-###try naniar with different function: gg_miss_var_cumsum()
-naniar::gg_miss_var_cumsum (myData) ###is that true bleed, pep and sod all have quite a lot missing data?
-
 myData$bleed %>% is.na() %>% 
-  sum() ##I got result 575 missing data for bleed
+  sum() 
 
 # subset the dataset without bleed var
 myData <- myData %>% subset (select = -bleed)
@@ -117,7 +112,6 @@ glimpse(myData)
 # find out duplicate column?
 # are the last 2 variables expressing the same?
 myData %>% select(30:31)
-myData %>% distinct(`feature_type`,`feature_value`) ###here again feature type and feature_value were not found - if I checked from previous code it has been pivoted wider? so it should be sod and type or? 
 
 ## it does not seem so. The 2 variables are expressing different values
 
