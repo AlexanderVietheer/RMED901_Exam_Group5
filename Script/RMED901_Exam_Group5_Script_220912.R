@@ -39,8 +39,14 @@ skimr::skim(myData)
 ## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename. 
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
+<<<<<<< HEAD
+         Dose_asa_325 = `325asa`)
+
+skimr::skim(myData)
+=======
          Dose_asa_325 = `325asa`,
          feature_type = `feature type`) 
+>>>>>>> 3aa51c6356d89d5c3188b336e59ee0c2769e9b9e
 
 head(myData)
 tail(myData) ###I noticed at this stage column feature typs does not exist and still come as feature_type
@@ -135,17 +141,33 @@ df=subset(myData, select = -c(acinar, train, amp, pdstent))
 #Create a set of new columns:
 #  A column showing whether age is higher than 35 or not: values High/Low
 library(dplyr)
-
+myData <- myData %>% 
+  mutate(agegroup = case_when(age <= 35 ~ "Low",
+                              age > 35 ~ "High"))
 
 #  A numeric column showing risk as a percentage of highest possible risk (5.5)
 
+myData$risk <- as.numeric(myData$risk)
+myData <- myData %>% 
+  mutate(riskpercentage = risk / 5.5)
+
 #  A column showing pep as No/Yes
+##??? Did not find the column pep?
 
 #  A numeric column showing multiplication of age and risk for each person
+myData$age<-as.numeric(myData$age)
+myData <- myData %>% 
+  mutate(AgemultiplybyRisk = age*risk )
+
 
 #Set the order of columns as: id, site, age and other columns
 
+myData <- myData %>% 
+  select(id, everything())
+
 #Arrange ID column of your dataset in order of increasing number or alphabetically
+
+arrange(myData, id, disp)
 
 #Read and join the additional dataset to your main dataset.
 
