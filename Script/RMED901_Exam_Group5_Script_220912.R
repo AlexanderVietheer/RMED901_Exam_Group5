@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------
 #-------------------Day 5 tasks:Read and tidy the dataset ----------------------
-
 #write all the commands and document!
 #tips:
 #some columns may need to be separated
@@ -15,14 +14,14 @@
 #some column names can contain spaces or start with numbers
 #some columns can include values from various features/measurements
 
-# loading packages
+#loading packages
 library(tidyverse)
 library(here)
 
 #read the data set
 myData <- read_csv(here("DATA", "exam_nontidy.txt"))
 
-# exploring the data set
+#exploring the data set
 head(myData)
 
 # we have to read in the data set sensitive for tabulator delimiter
@@ -113,7 +112,6 @@ glimpse(myData)
 # find out duplicate column?
 # are the last 2 variables expressing the same?
 myData %>% select(30:31)
-myData %>% distinct(`feature_type`,`feature_value`) 
 
 ## it does not seem so. The 2 variables are expressing different values
 
@@ -133,7 +131,7 @@ myData %>% distinct(sod, pep)
 #-------------------Day6 Tasks: Tidy, adjust, and explore ----------------------
 
 #Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent
-#Use subset() fuction to delete column by name
+#Use subset() fuction to delete column by name (SOLVED)
 
 df=subset(myData, select = -c(acinar, train, amp, pdstent))
 
@@ -152,7 +150,12 @@ myData <- myData %>%
   mutate(riskpercentage = risk / 5.5)
 
 #  A column showing pep as No/Yes
-##??? Did not find the column pep?
+myData <- 
+  myData %>% 
+  mutate(Newpep = pep)
+myData <-
+  myData %>% 
+  mutate(Newpep = if_else(Newpep == "0", "No", "Yes"))
 
 #  A numeric column showing multiplication of age and risk for each person
 myData$age<-as.numeric(myData$age)
@@ -182,7 +185,12 @@ antibodyData <- antibodyData %>%
 
 View(antibodyData)
 
+Fulldataset <- antibodyData %>%
+  full_join(myData, by = c("id","site"))
+
 #Connect above steps with pipe.
+
+
 
 #Explore your data.Explore and comment on the missing variables.
 
