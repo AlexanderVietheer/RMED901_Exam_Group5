@@ -176,7 +176,7 @@ myData <- myData %>%
 
 #Arrange ID column of your dataset in order of increasing number or alphabetically
 
-arrange(myData, id, disp)
+arrange(myData, id)
 
 #Read and join the additional dataset to your main dataset.
 antibodyData <- read_delim(here("DATA", "exam_joindata.txt"), delim = "\t")
