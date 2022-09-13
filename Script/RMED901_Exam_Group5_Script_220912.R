@@ -111,6 +111,15 @@ myData %>% distinct(`feature type`,`feature_value`) ###here again feature type a
 
 ## it does not seem so. The 2 variables are expressing different values
 
+
+###Try to view sod and pep columns
+
+view(myData$sod)
+view(myData$pep) ###from visual seems these two columns sod and pep are the same??? is it from feature type and feature_value?
+
+myData %>% distinct(sod, pep)
+
+
 ###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? 
 
 
