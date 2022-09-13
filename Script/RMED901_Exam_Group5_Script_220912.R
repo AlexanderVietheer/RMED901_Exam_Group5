@@ -37,11 +37,11 @@ skimr::skim(myData)
 # we have 1214 rows; 31 columns
 
 ## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename. 
-myData1 <- myData %>% 
+myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
          Dose_asa_325 = `325asa`)
 
-skimr::skim(myData1)
+skimr::skim(myData)
 
 # Tidy 2: We observed the variable "id" has the two parts, we checked the codebook 
 # Tidy 2: of the dataset, that the first integer 1-4 indicates site of the study
@@ -71,17 +71,33 @@ df=subset(myData, select = -c(acinar, train, amp, pdstent))
 #Create a set of new columns:
 #  A column showing whether age is higher than 35 or not: values High/Low
 library(dplyr)
-
+myData <- myData %>% 
+  mutate(agegroup = case_when(age <= 35 ~ "Low",
+                              age > 35 ~ "High"))
 
 #  A numeric column showing risk as a percentage of highest possible risk (5.5)
 
+myData$risk <- as.numeric(myData$risk)
+myData <- myData %>% 
+  mutate(riskpercentage = risk / 5.5)
+
 #  A column showing pep as No/Yes
+##??? Did not find the column pep?
 
 #  A numeric column showing multiplication of age and risk for each person
+myData$age<-as.numeric(myData$age)
+myData <- myData %>% 
+  mutate(AgemultiplybyRisk = age*risk )
+
 
 #Set the order of columns as: id, site, age and other columns
 
+myData <- myData %>% 
+  select(id, everything())
+
 #Arrange ID column of your dataset in order of increasing number or alphabetically
+
+arrange(myData, id, disp)
 
 #Read and join the additional dataset to your main dataset.
 
