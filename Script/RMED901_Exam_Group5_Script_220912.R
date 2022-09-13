@@ -32,10 +32,9 @@ head(myData)
 
 # exploring the data and have a look at all variables in rows; basic summary stats
 skimr::skim(myData)
-
 # we have 1214 rows; 31 columns
 
-## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename. 
+## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename.---- 
 ###This command is a nice way to check every column names(variables)
 colnames(myData)
 
@@ -78,7 +77,7 @@ glimpse(myData)
 myData %>% count(`feature_type`)
 myData %>% count(`feature_type`, feature_value)
 
-## Tidy 3: 
+## Tidy 3:---- 
 
 myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) 
 ##just looking again the data now
@@ -125,6 +124,7 @@ myData %>% distinct(sod, pep)
 
 
 ###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? 
+
 
 
 #-------------------------------------------------------------------------------
@@ -185,23 +185,12 @@ antibodyData <- antibodyData %>%
 
 View(antibodyData) 
 
-<<<<<<< HEAD
-Fulldataset <- antibodyData %>% 
-  full_join(myData, by = c("site", "id"))
-
 #Connect above steps with pipe. If using this pipe, do not use to code above. 
 Fulldataset <- myData %>% 
   full_join(antibodyData %>% 
               separate(col = id, 
                        into = c("site", "id"), 
                        sep = "_"), by = c("id", "site"))
-=======
-Fulldataset <- antibodyData %>%
-  full_join(myData, by = c("id","site"))
-
-#Connect above steps with pipe.
->>>>>>> fc8e020c96af4587e3fd0ed0f87bb92752b3f22c
-
 
 
 #Explore your data.Explore and comment on the missing variables.
@@ -216,25 +205,32 @@ Fulldataset %>%
 # There are 476 females and 126 males in the dataset, this could be an explanation for the big difference in NAs between the genders. 
 
 #Stratify your data by a categorical column and report min, max, mean and sd of a numeric column.
+#Stratify your data by a categorical column and report min, max, mean and sd of a numeric column for a defined set of observations - use pipe!
 Fulldataset %>% 
   group_by(gender) %>% 
   summarise(min(antibody, na.rm = T),max(antibody, na.rm = T), mean(antibody, na.rm = T), sd(antibody, na.rm = T))
 
-#Stratify your data by a categorical column and report min, max, mean and sd of a numeric column for a defined set of observations - use pipe!
-
 #Only for persons with recpanc == 0
 Fulldataset %>% 
-  group_by(recpanc == 0)
-
+  filter(recpanc == 0)
 
 #Only for persons recruited in site 3
+Fulldataset %>% 
+  filter(site == 3)
 
 #Only for persons older than 45
+Fulldataset %>% 
+  filter(age > 45)
 
 #Only for persons with risk higher than 2 and sod_type is type 2
+Fulldataset %>% 
+  filter(risk > 2 & sod_type ==2) # No patients falls in this category. 
 
 #Use two categorical columns in your dataset to create a table (hint: ?count)
-
+## we want to look at Gender and "sod_type". 
+Fulldataset %>% 
+  select(gender, sod_type) %>% 
+  count(gender, sod_type)
 
 #-------------------------------------------------------------------------------
 #-------Day7 Tasks: Create plots that would help answer these questions --------
