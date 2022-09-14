@@ -46,13 +46,13 @@ myData <- myData %>%
 
 head(myData)
 tail(myData)
-# Tidy 2: We observed the variable "id" has the two parts, we checked the codebook ----
-# Tidy 2: of the dataset, that the first integer 1-4 indicates site of the study
-# Tidy 2: so we use separate() function to separate the id column
+
+## Tidy 2: We observed the variable "id" has the two parts, we checked the codebook of the dataset, that the first integer 1-4 indicates site of the study so we use separate() function to separate the id column
 myData <- myData %>% 
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
+
 # look at all variables
 glimpse(myData) 
 # check the distinct values of a column
@@ -62,27 +62,24 @@ nrow(myData$feature_type) ## doesn't count the rows
 nrow(distinct(myData,id))
 head(myData) 
 nrow(myData)
-View(myData)
-## there are several variables with the same id
-## distinct of age and gender gives the rows that are unique for the combination of age and gender
-## seems that the id variable contains also several consultations as the id is duplicated
-## seem the reason is the feature type column that should be  spread in 2 separate cols 
 
-## Tidy 3: separate the feature type col in 2 separate
-## We are keeping the same name of the object "myData". 
-myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = feature_value)
-## now every id is appears only once
-## but warning and the 2 last cols are now list cols because not uniquely identified
-glimpse(myData)
-myData %>% count(`feature_type`)
-myData %>% count(`feature_type`, feature_value)
+
+## Tidy 3: remove the duplicated row in the dataset using the distinct() function
+myData<- myData %>% 
+  distinct()
+# there are 10 rows with duplications
+
+## Tidy 4: Then we pivot the column into sod and pep
+myData$feature_type <- as.factor(myData$feature_type)
+myData$feature_value <- as.numeric(myData$feature_value)
+myData <- myData %>% 
+  pivot_wider(names_from = `feature_type`, values_from = feature_value)
 
 ##just looking again the data now
 head(myData)
 tail(myData)
 summary(myData)
 skimr::skim(myData)
-
 glimpse(myData) 
 colnames(myData) 
 
