@@ -18,6 +18,13 @@
 library(tidyverse)
 library(here)
 
+#read the original data set, finding why sod and pipe (variable transformed from feature type&feature_value has some vectors- Shanshan issue line 130)
+myorigData <- read_csv(here("DATA", "exam_nontidy.txt"))
+myorigData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
+skimr::skim(myorigData$`feature type`)
+skimr::skim(myorigData$feature_value)
+myorigData %>% distinct(`feature type`, feature_value) ###line130 shanshan issue: I could not find unusual data from original data though, will try to find again solution, or maybe we could just ask lecturers :)
+
 #read the data set
 myData <- read_csv(here("DATA", "exam_nontidy.txt"))
 
@@ -118,7 +125,6 @@ view(myData$pep) ###from visual seems these two columns sod and pep are the same
 
 myData %>% distinct(sod, pep)
 
-
 ###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? (CONFIRMED)
 ###I conclude the cokumn with various features/measurements was only id from original dataset(exam_nontidy.txt)
 #--- (Shanshan)I found some values in the sod a d pep column contain the some vector, for example c(0,0), c(o,0), is this the same on your dataset? Maybe we need to solve it? 
@@ -135,6 +141,7 @@ view(myData$Dose_asa_325)
 view(myData$brush)
 head(myData)
 tail(myData)
+
 
 #-------------------------------------------------------------------------------
 #-------------------Day6 Tasks: Tidy, adjust, and explore ----------------------
