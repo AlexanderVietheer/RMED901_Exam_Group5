@@ -21,9 +21,15 @@ library(here)
 #read the original data set, finding why sod and pipe (variable transformed from feature type&feature_value has some vectors- Shanshan issue line 130)
 myorigData <- read_csv(here("DATA", "exam_nontidy.txt"))
 myorigData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
+
 skimr::skim(myorigData$`feature type`)
 skimr::skim(myorigData$feature_value)
 myorigData %>% distinct(`feature type`, feature_value) ###line130 shanshan issue: I could not find unusual data from original data though, will try to find again solution, or maybe we could just ask lecturers :)
+
+#pivot winder orginial data- named new by Dita as myorigData2
+myorigData2 <- read_csv(here("DATA", "exam_nontidy.txt"))
+myorigData2 <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
+myorigData2 <- myorigData2 %>% pivot_wider(names_from = `feature type`, values_from = feature_value, names_repair = "check_unique") ###I tried to read new original data and pivot wider it with extra arguments, got warnings and still find the unusual vectors in sod and pep
 
 #read the data set
 myData <- read_csv(here("DATA", "exam_nontidy.txt"))
