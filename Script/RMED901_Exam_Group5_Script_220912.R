@@ -269,13 +269,35 @@ antibody<-as.numeric(antibody)
 df1 <- data.frame(age,risk,antibody)
 cor(df1,use="pairwise.complete.obs" )
 
+<<<<<<< HEAD
 cor(age,risk, use="pairwise.complete.obs")
+=======
+#1.Are there any correlated measurements? All
+>>>>>>> 54196adc294920e98962964dad6b964387a26407
 
-#2.Does the age distribution depend on sod_type? Marta
+
+#2.Does the age distribution depend on sod_type? 
+#age is numeric and sod_type is categorical
+
+ggplot(Fulldataset,
+       aes(x = sod_type, y = age)) +
+  geom_col(aes(sod_type))
+# It looks like there is an higher number of older patients with Type2. 
+
+#Might this only depend on the higher number of older patient? Creating a boxplot to get an impression of the median: 
+ggplot(Fulldataset,
+       aes(x = sod_type, y = age)) +
+  geom_boxplot(aes(sod_type)) # In this dataset, the age tend to be older in Type1 than Type2 and 3. 
 
 #3.Does the age distribution of the patients depend on their sex (gender)? ShanShan
 
 #4.Does the risk score change with age of the patients? Alex 
+#Both variables are numerical
+ggplot(Fulldataset,
+       aes(x = age, y = risk)) +
+  geom_point(aes(age)) +
+  geom_smooth() # visualize the trend
+# it does not look like that there is a significant trend between risk and age.  
 
 #5.Does the aspirin usage depend on the age? Dita
 
