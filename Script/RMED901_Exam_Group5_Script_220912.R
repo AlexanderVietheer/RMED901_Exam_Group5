@@ -18,19 +18,6 @@
 library(tidyverse)
 library(here)
 
-#read the original data set, finding why sod and pipe (variable transformed from feature type&feature_value has some vectors- Shanshan issue line 130)
-myorigData <- read_csv(here("DATA", "exam_nontidy.txt"))
-myorigData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
-
-skimr::skim(myorigData$`feature type`)
-skimr::skim(myorigData$feature_value)
-myorigData %>% distinct(`feature type`, feature_value) ###line130 shanshan issue: I could not find unusual data from original data though, will try to find again solution, or maybe we could just ask lecturers :)
-
-#pivot winder orginial data- named new by Dita as myorigData2
-myorigData2 <- read_csv(here("DATA", "exam_nontidy.txt"))
-myorigData2 <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
-myorigData2 <- myorigData2 %>% pivot_wider(names_from = `feature type`, values_from = feature_value, names_repair = "check_unique") ###I tried to read new original data and pivot wider it with extra arguments, got warnings and still find the unusual vectors in sod and pep
-
 #read the data set
 myData <- read_csv(here("DATA", "exam_nontidy.txt"))
 
@@ -47,48 +34,33 @@ head(myData)
 skimr::skim(myData)
 # we have 1214 rows; 31 columns
 
-## Tidy 1: We observe some variables starting with numbers, we want to rename these by using the pipe-rename.---- 
-###This command is a nice way to check every column names(variables)
-colnames(myData)
+## Tidy 1: We observe some variables starting with numbers,and the variable "feature type" has space between the variable name, so we rename these by using the pipe-rename.
 
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
          Dose_asa_325 = `325asa`,
          feature_type = `feature type`)
 
-
-head(myData)
-tail(myData)
-
-## Tidy 2: We observed the variable "id" has the two parts, we checked the codebook of the dataset, that the first integer 1-4 indicates site of the study so we use separate() function to separate the id column
+## Tidy 2: We observed the variable "id" has the two parts, we checked the codebook of the dataset, that the first integer 1-4 indicates site of the study so we use separate() function to separate the id column.
 myData <- myData %>% 
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
 
-# look at all variables
-glimpse(myData) 
-# check the distinct values of a column
-as.factor(myData$feature_type)
-nrow(myData$feature_type) ## doesn't count the rows 
-
-nrow(distinct(myData,id))
-head(myData) 
-nrow(myData)
-
-
-## Tidy 3: remove the duplicated row in the dataset using the distinct() function
+## Tidy 3: remove the duplicated row in the dataset using the distinct() function.
 myData<- myData %>% 
   distinct()
-# there are 10 rows with duplications
+# there are 10 rows with duplicates final n = 1204 
 
-## Tidy 4: Then we pivot the column into sod and pep
+## Tidy 4: Then we pivot the column into sod and pep columns
 myData$feature_type <- as.factor(myData$feature_type)
 myData$feature_value <- as.numeric(myData$feature_value)
 myData <- myData %>% 
   pivot_wider(names_from = `feature_type`, values_from = feature_value)
 
-##just looking again the data now
+# n = 602 (32 variables) after pivoting
+
+# just looking again the data now
 head(myData)
 tail(myData)
 summary(myData)
@@ -112,26 +84,9 @@ myData$bleed %>% is.na() %>%
 # subset the dataset without bleed var
 myData <- myData %>% subset (select = -bleed)
 glimpse(myData)
-## the bleed variable is not part of the dataframe anymore
+## the bleed variable is not part of the data frame anymore
 
-# find out duplicate column?
-# are the last 2 variables expressing the same?
-myData %>% select(30:31)
-
-## it does not seem so. The 2 variables are expressing different values
-
-
-###Try to view sod and pep columns
-view(myData$sod)
-view(myData$pep) ###from visual seems these two columns sod and pep are the same??? is it from feature type and feature_value?
-
-myData %>% distinct(sod, pep)
-
-###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? (CONFIRMED)
-###I conclude the cokumn with various features/measurements was only id from original dataset(exam_nontidy.txt)
-#--- (Shanshan)I found some values in the sod a d pep column contain the some vector, for example c(0,0), c(o,0), is this the same on your dataset? Maybe we need to solve it? 
-
-###look again the data and checking if I could find unusual unique characters and/or numbers which may indicate some variables have different features/measurements
+# look again the data and checking if we could find unusual unique characters and/or numbers which may indicate some variables have different features/measurements.
 colnames(myData)
 skimr::skim(myData)
 view(myData$sod_type)
@@ -149,9 +104,10 @@ tail(myData)
 #-------------------Day6 Tasks: Tidy, adjust, and explore ----------------------
 
 #Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent
-#Use subset() fuction to delete column by name (SOLVED)
+#Use subset() fuction to delete column by name
 
 df=subset(myData, select = -c(acinar, train, amp, pdstent))
+# df is the data frame excluded the cloumns:acinar, train, amp, pdstent from the day 6 task.
 
 #Make necessary changes in variable types
 #Create a set of new columns:
@@ -170,10 +126,8 @@ myData <- myData %>%
 #  A column showing pep as No/Yes
 myData <- 
   myData %>% 
-  mutate(Newpep = pep)
-myData <-
-  myData %>% 
-  mutate(Newpep = if_else(Newpep == "0", "No", "Yes"))
+  mutate(Newpep = pep, Newpep = if_else(Newpep == "0", "No", "Yes"))
+
 
 #  A numeric column showing multiplication of age and risk for each person
 myData$age<-as.numeric(myData$age)
@@ -193,15 +147,13 @@ arrange(myData, id)
 #Read and join the additional dataset to your main dataset.
 antibodyData <- read_delim(here("DATA", "exam_joindata.txt"), delim = "\t")
 
-View(antibodyData) # Need to look over and tidy this data
 
-# need to seperate the columns "id" and "antibody"
+# need to separate the columns "id" and "antibody"
 antibodyData <- antibodyData %>% 
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
 
-View(antibodyData) 
 
 ###Shanshan: to join the two data sets, we should not use full_join, this will creat aditional 200 observations but to match the original dataset, so I changed the syntax as follows 
 
@@ -209,8 +161,7 @@ View(antibodyData)
 Fulldataset <- myData %>% 
   left_join(antibodyData, by = c("id","site"))
 
-
-
+# The Fulldataset contains n = 602 observations and 37 variables. We will work on this Fulldataset.
 
 #Explore your data.Explore and comment on the missing variables.
 is.na(Fulldataset)
@@ -226,6 +177,10 @@ Fulldataset %>%
 # There are 476 females and 126 males in the dataset, this could be an explanation for the big difference in NAs between the genders. 
 
 #Stratify your data by a categorical column and report min, max, mean and sd of a numeric column.
+Fulldataset %>% 
+  group_by(gender) %>% 
+  summarise(min(risk, na.rm = T),max(risk, na.rm = T), mean(risk, na.rm = T), sd(risk, na.rm = T))
+
 #Stratify your data by a categorical column and report min, max, mean and sd of a numeric column for a defined set of observations - use pipe!
 Fulldataset %>% 
   group_by(gender) %>% 
@@ -255,28 +210,31 @@ Fulldataset %>%
 
 #-------------------------------------------------------------------------------
 #-------Day7 Tasks: Create plots that would help answer these questions --------
+
+# loading library
 library(ggplot2)
-library(Hmisc)
+library(corrplot)
 
-#1.Are there any correlated measurements? (Shanshan)
-# In our data set, only the age and antibody column are the numeric variables,so we can explore the corrletion betwwen age, risk, antibody. That it is. 
-# We can creat datafram of these three columns and then creat a correlation matrix.
-attach(Fulldataset)
-age<- as.numeric(age)
-risk<-as.numeric(risk)
-antibody<-as.numeric(antibody)
+##1.Are there any correlated measurements?
 
+# In our data set, only the age, antibody and risk are the numeric variables,so we can explore the correlation betwwen age, risk, antibody. So we will plot the correlations between age, risk and antibody
+# We can check the correlation by plotting the scatter plot of two variables first:
+scatterplot1 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = risk))
+scatterplot2 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = antibody))
+scatterplot3 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = risk, y = antibody))
+
+# From the scatter plots, did not see a very clear relationship between age, risk and antibody.
+
+# Then we create datafram of these three columns and then plot a correlation matrix.
 df1 <- data.frame(age,risk,antibody)
-cor(df1,use="pairwise.complete.obs" )
-
-<<<<<<< HEAD
-cor(age,risk, use="pairwise.complete.obs")
-=======
-#1.Are there any correlated measurements? All
->>>>>>> 54196adc294920e98962964dad6b964387a26407
+correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
+         addCoef.col = "black",
+         number.digits =  3,
+         outline = "black")
+# age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
 
 
-#2.Does the age distribution depend on sod_type? 
+#"2.Does the age distribution depend on sod_type? 
 #age is numeric and sod_type is categorical
 
 ggplot(Fulldataset,
@@ -289,7 +247,15 @@ ggplot(Fulldataset,
        aes(x = sod_type, y = age)) +
   geom_boxplot(aes(sod_type)) # In this dataset, the age tend to be older in Type1 than Type2 and 3. 
 
-#3.Does the age distribution of the patients depend on their sex (gender)? ShanShan
+##3.Does the age distribution of the patients depend on their sex (gender)?
+
+ggplot(Fulldataset,
+       aes(x = as.factor(gender), y = age)) + 
+  geom_col(aes(fill = age), position = position_dodge()) +
+           facet_wrap(facets = vars(gender)) 
+
+# The patients were older in the female group, and younger in the male group.
+
 
 #4.Does the risk score change with age of the patients? Alex 
 #Both variables are numerical
