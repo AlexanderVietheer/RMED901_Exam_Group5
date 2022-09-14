@@ -116,7 +116,6 @@ myData %>% select(30:31)
 
 
 ###Try to view sod and pep columns
-
 view(myData$sod)
 view(myData$pep) ###from visual seems these two columns sod and pep are the same??? is it from feature type and feature_value?
 
