@@ -254,16 +254,17 @@ Fulldataset %>%
 
 #-------------------------------------------------------------------------------
 #-------Day7 Tasks: Create plots that would help answer these questions --------
+library(ggplot2)
 
-#1.Are there any correlated measurements?
+#1.Are there any correlated measurements? Marta
 
-#2.Does the age distribution depend on sod_type?
+#2.Does the age distribution depend on sod_type? Marta
 
-#3.Does the age distribution of the patients depend on their sex (gender)?
+#3.Does the age distribution of the patients depend on their sex (gender)? ShanShan
 
-#4.Does the risk score change with age of the patients?
+#4.Does the risk score change with age of the patients? Alex 
 
-#5.Does the aspirin usage depend on the age?
+#5.Does the aspirin usage depend on the age? Dita
 
 
 #-------------------------------------------------------------------------------
