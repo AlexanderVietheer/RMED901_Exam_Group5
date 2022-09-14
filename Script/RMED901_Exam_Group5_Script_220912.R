@@ -147,15 +147,11 @@ arrange(myData, id)
 #Read and join the additional dataset to your main dataset.
 antibodyData <- read_delim(here("DATA", "exam_joindata.txt"), delim = "\t")
 
-
 # need to separate the columns "id" and "antibody"
 antibodyData <- antibodyData %>% 
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
-
-
-###Shanshan: to join the two data sets, we should not use full_join, this will creat aditional 200 observations but to match the original dataset, so I changed the syntax as follows 
 
 #Connect above steps with pipe. If using this pipe, do not use to code above. 
 Fulldataset <- myData %>% 
