@@ -203,12 +203,13 @@ antibodyData <- antibodyData %>%
 
 View(antibodyData) 
 
+###Shanshan: to join the two data sets, we should not use full_join, this will creat aditional 200 observations but to match the original dataset, so I changed the syntax as follows 
+
 #Connect above steps with pipe. If using this pipe, do not use to code above. 
 Fulldataset <- myData %>% 
-  full_join(antibodyData %>% 
-              separate(col = id, 
-                       into = c("site", "id"), 
-                       sep = "_"), by = c("id", "site"))
+  left_join(antibodyData, by = c("id","site"))
+
+
 
 
 #Explore your data.Explore and comment on the missing variables.
@@ -255,8 +256,20 @@ Fulldataset %>%
 #-------------------------------------------------------------------------------
 #-------Day7 Tasks: Create plots that would help answer these questions --------
 library(ggplot2)
+library(Hmisc)
 
-#1.Are there any correlated measurements? Marta
+#1.Are there any correlated measurements? (Shanshan)
+# In our data set, only the age and antibody column are the numeric variables,so we can explore the corrletion betwwen age, risk, antibody. That it is. 
+# We can creat datafram of these three columns and then creat a correlation matrix.
+attach(Fulldataset)
+age<- as.numeric(age)
+risk<-as.numeric(risk)
+antibody<-as.numeric(antibody)
+
+df1 <- data.frame(age,risk,antibody)
+cor(df1,use="pairwise.complete.obs" )
+
+cor(age,risk, use="pairwise.complete.obs")
 
 #2.Does the age distribution depend on sod_type? Marta
 
