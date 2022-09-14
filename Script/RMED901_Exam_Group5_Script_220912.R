@@ -18,6 +18,19 @@
 library(tidyverse)
 library(here)
 
+#read the original data set, finding why sod and pipe (variable transformed from feature type&feature_value has some vectors- Shanshan issue line 130)
+myorigData <- read_csv(here("DATA", "exam_nontidy.txt"))
+myorigData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
+
+skimr::skim(myorigData$`feature type`)
+skimr::skim(myorigData$feature_value)
+myorigData %>% distinct(`feature type`, feature_value) ###line130 shanshan issue: I could not find unusual data from original data though, will try to find again solution, or maybe we could just ask lecturers :)
+
+#pivot winder orginial data- named new by Dita as myorigData2
+myorigData2 <- read_csv(here("DATA", "exam_nontidy.txt"))
+myorigData2 <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
+myorigData2 <- myorigData2 %>% pivot_wider(names_from = `feature type`, values_from = feature_value, names_repair = "check_unique") ###I tried to read new original data and pivot wider it with extra arguments, got warnings and still find the unusual vectors in sod and pep
+
 #read the data set
 myData <- read_csv(here("DATA", "exam_nontidy.txt"))
 
@@ -46,13 +59,13 @@ myData <- myData %>%
 
 head(myData)
 tail(myData)
-# Tidy 2: We observed the variable "id" has the two parts, we checked the codebook ----
-# Tidy 2: of the dataset, that the first integer 1-4 indicates site of the study
-# Tidy 2: so we use separate() function to separate the id column
+
+## Tidy 2: We observed the variable "id" has the two parts, we checked the codebook of the dataset, that the first integer 1-4 indicates site of the study so we use separate() function to separate the id column
 myData <- myData %>% 
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
+
 # look at all variables
 glimpse(myData) 
 # check the distinct values of a column
@@ -62,31 +75,24 @@ nrow(myData$feature_type) ## doesn't count the rows
 nrow(distinct(myData,id))
 head(myData) 
 nrow(myData)
-View(myData)
-## there are several variables with the same id
-## distinct of age and gender gives the rows that are unique for the combination of age and gender
-## seems that the id variable contains also several consultations as the id is duplicated
-## seem the reason is the feature type column that should be  spread in 2 separate cols 
 
-# spred the feature type col in 2 separate
-## We are keeping the same name of the object "myData". 
-myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = feature_value)
-## now every id is appears only once
-## but warning and the 2 last cols are now list cols because not uniquely identified
-glimpse(myData)
-myData %>% count(`feature_type`)
-myData %>% count(`feature_type`, feature_value)
 
-## Tidy 3:---- 
+## Tidy 3: remove the duplicated row in the dataset using the distinct() function
+myData<- myData %>% 
+  distinct()
+# there are 10 rows with duplications
 
-myData <- myData %>% pivot_wider(names_from = `feature_type`, values_from = `feature_value`) 
+## Tidy 4: Then we pivot the column into sod and pep
+myData$feature_type <- as.factor(myData$feature_type)
+myData$feature_value <- as.numeric(myData$feature_value)
+myData <- myData %>% 
+  pivot_wider(names_from = `feature_type`, values_from = feature_value)
+
 ##just looking again the data now
 head(myData)
 tail(myData)
 summary(myData)
-###the column feature_type and feature_value are not found here
 skimr::skim(myData)
-
 glimpse(myData) 
 colnames(myData) 
 
@@ -121,9 +127,22 @@ view(myData$pep) ###from visual seems these two columns sod and pep are the same
 
 myData %>% distinct(sod, pep)
 
+###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? (CONFIRMED)
+###I conclude the cokumn with various features/measurements was only id from original dataset(exam_nontidy.txt)
+#--- (Shanshan)I found some values in the sod a d pep column contain the some vector, for example c(0,0), c(o,0), is this the same on your dataset? Maybe we need to solve it? 
 
-###Dita (dinastryp) will do tidying: the some columns can include values from various features/measurements --- I have to confirm the variables feature_type/feature type and feature_value first is it changed into sod and pep? 
-
+###look again the data and checking if I could find unusual unique characters and/or numbers which may indicate some variables have different features/measurements
+colnames(myData)
+skimr::skim(myData)
+view(myData$sod_type)
+view(myData$status)
+head(myData$recpanc)
+tail(myData$recpanc)
+view(myData$Dose_asa_81)
+view(myData$Dose_asa_325)
+view(myData$brush)
+head(myData)
+tail(myData)
 
 
 #-------------------------------------------------------------------------------
@@ -195,6 +214,8 @@ Fulldataset <- myData %>%
 #Explore your data.Explore and comment on the missing variables.
 is.na(Fulldataset)
 naniar::gg_miss_var((Fulldataset), facet = gender) # 400 patients are missing antibody-variable whilst around 600 patients are missing the bleeding-variable. There are more NAs in teh female-population. These high numbers of NAs can be problematic for further analyses? 
+###I do not understand why here is talking about bleeding-variable (bleed) again? I followed the commands above and it was already deleted(subset) because we agreed 95% missing so may be not relevant variable? (line 106 until 109)
+
 skimr::skim(Fulldataset)
 
 #Group by gender
