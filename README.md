@@ -5,3 +5,8 @@ Repository for the R exam
 #Mozilla/5.0 (Macintosh; Intel Mac OS X 12_2_1) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.10 Chrome/69.0.3497.128 Safari/537.36
 
 # Dataset used: 
+##original dataset.pdf
+## exam_nontidy.txt
+## exam_joindata.txt
+
+# The script contains the analyses of group 5. We havw over a period worked together in the main branch, but also some in side-brances. We have all contributed equally to the tasks. 
