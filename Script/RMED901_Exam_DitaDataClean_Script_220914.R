@@ -206,17 +206,16 @@ Fulldataset %>%
 
 #-------------------------------------------------------------------------------
 #-------Day7 Tasks: Create plots that would help answer these questions --------
-<<<<<<< HEAD
+
 library("ggplot2")
 library("devtools")
 library("patchwork")
 
-=======
-  
-  # loading library
-  library(ggplot2)
+# loading library
+library(ggplot2)
+install.packages("corrplot")
 library(corrplot)
->>>>>>> 532475b0e5013a84e7b3b406877c2c4b56e5fe78
+
 
 ##1.Are there any correlated measurements?
 
@@ -281,72 +280,57 @@ glimpse(Fulldataset$age)
 
 view(Fulldataset$age)
 
-##using myData
-skimr::skim(myData$Dose_asa_81)
-skimr::skim(myData$Dose_asa_325)
-skimr::skim(myData$age)
-
-##basic plots for aspirin dose 81 and aspirin dose 325
-ggplot(myData,  # define data
-       aes(x = as.factor(age), y = Dose_asa_81)) +  
-  geom_point()
-
-
-ggplot(myData,  # define data
-       aes(x = as.factor(age), y = Dose_asa_325)) +  
-  geom_point()
+###Using Fulldatapset
 
 library(tibble)
 library(MASS) # for ordinal log regression
 
 #checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
-myDataPlotAsp <- myData %>% add_column(checkAspUse = ifelse(myData$Dose_asa_81==1&myData$Dose_asa_325==1,1,0))
+myFullDataPlotAsp <- Fulldataset %>% add_column(checkAspUse = ifelse(Fulldataset$Dose_asa_81==1&Fulldataset$Dose_asa_325==1,1,0))
 
-1 %in% myDataPlotAsp$checkAspUse ###Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
+1 %in% myFullDataPlotAsp$checkAspUse ###Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
 
-summary(myData$Dose_asa_81)
-summary(myData$Dose_asa_325)
-summary(myDataPlotAsp$checkAspUse) ###Nobody taking both aspirin dose 81 and 325 mg
+summary(myFullDataPlotAsp$checkAspUse) ###Nobody taking both aspirin dose 81 and 325 mg
 
-summary(myDataPlotAsp) ###I am using new dataframe myDataPlotAsp now when I add new column to check usage of both aspirin doses because I do not want to change clean data myData, also for later modifications by myself
+summary(myFullDataPlotAsp) ###I am using new dataframe myDataPlotAsp now when I add new column to check usage of both aspirin doses because I do not want to change clean data myData, also for later modifications by myself
 
 ###Dropping missing data from myDataPlotAsp
-myDataPlotAsp <- drop_na(myDataPlotAsp)
+myFullDataPlotAsp <- drop_na(myFullDataPlotAsp)
 
 ###Converting (but creating a new variables to be safe, not changing the original ones) to factor
-myDataPlotAsp$Asa81Fac <- as.factor(myDataPlotAsp$Dose_asa_81)
-myDataPlotAsp$Asa325Fac <- as.factor(myDataPlotAsp$Dose_asa_325)
+myFullDataPlotAsp$Asa81Fac <- as.factor(myFullDataPlotAsp$Dose_asa_81)
+myFullDataPlotAsp$Asa325Fac <- as.factor(myFullDataPlotAsp$Dose_asa_325)
 
 ### To remove E-10212 bla bla (scientific notations on decimals)
 options(scipen=999)
 
 ###Setting models
 
-modelAsa81 <- glm(Asa81Fac ~ age, family='binomial', data=myDataPlotAsp)
+modelAsa81 <- glm(Asa81Fac ~ age, family='binomial', data=myFullDataPlotAsp)
 summary(modelAsa81)
 
-modelAsa325 <- glm(Asa325Fac ~ age, family='binomial', data=myDataPlotAsp)
+modelAsa325 <- glm(Asa325Fac ~ age, family='binomial', data=myFullDataPlotAsp)
 summary(modelAsa81)
 
 ###Standard boxplot aspirin dose 81 mg
-boxplot(age ~ Asa81Fac, data=myDataPlotAsp, xlab='Aspirin 81 mg Yes(1) No(0)',
+boxplot(age ~ Asa81Fac, data=myFullDataPlotAsp, xlab='Aspirin 81 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 81 mg and age')
 
 ###Alternative plot with data points aspirin dose 81 mg
-ggplot(myDataPlotAsp, aes(x=Asa81Fac, y=age)) +
+ggplot(myFullDataPlotAsp, aes(x=Asa81Fac, y=age)) +
   geom_boxplot(size=.75) +
   geom_jitter(alpha=.5) +
   xlab('Aspirin, none (0), 81 mg (1)') +
   ylab('Age')
 
 ###Standard boxplot aspirin dose 325 mg
-boxplot(age ~ Asa325Fac, data=myDataPlotAsp, xlab='Aspirin 325 mg Yes(1) No(0)',
+boxplot(age ~ Asa325Fac, data=myFullDataPlotAsp, xlab='Aspirin 325 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 325 mg and age')
 
 ###Alternative plot with data points aspirin dose 325 mg
-ggplot(myDataPlotAsp, aes(x=Asa325Fac, y=age)) +
+ggplot(myFullDataPlotAsp, aes(x=Asa325Fac, y=age)) +
   geom_boxplot(size=.75) +
   geom_jitter(alpha=.5) +
   xlab('Aspirin, none (0), 325 mg (1)') +
@@ -355,20 +339,14 @@ ggplot(myDataPlotAsp, aes(x=Asa325Fac, y=age)) +
 ###Since nobody taking both 81 AND 325 mg, you can actually combine these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, you'll need to use orginal logistic regression (since the dependent/outcome variable is not binary).
 
 ###Converting Aspirin to categorical with 3 categories
-myDataPlotAsp <- myDataPlotAsp %>% add_column(CheckCatAsp = ifelse(myDataPlotAsp$Dose_asa_81==1,1,
-                                                                   ifelse(myDataPlotAsp$Dose_asa_325==1,2,0)))
-myDataPlotAsp$CheckCatAsp <- as.factor(myDataPlotAsp$CheckCatAsp)
+myFullDataPlotAsp <- myFullDataPlotAsp %>% 
+  add_column(CheckCatAsp = 
+               ifelse(myFullDataPlotAsp$Dose_asa_81==1,1,                                                                   ifelse(myFullDataPlotAsp$Dose_asa_325==1,2,0)))
 
-###Ordinal logistic regression model to test if age significantly associated with both 81 and 325 mg or just one of them.
-ordinalModelAsp <- polr(CheckCatAsp ~ age, data=myDataPlotAsp, Hess=T)
-ctable <- coef(summary(ordinalModelAsa))
-pval <- pnorm(abs(ctable[,'t value']), lower.tail=F)*2
-ctable <- cbind(ctable, 'p value' = pval)
-
-ctable ###Now we can see if age is significantly associated with Aspirin in p value.
+myFullDataPlotAsp$CheckCatAsp <- as.factor(myFullDataPlotAsp$CheckCatAsp)
 
 ###Creating plot for ordinal aspirin
-ggplot(myDataPlotAsp, aes(x=CheckCatAsp, y=age)) +
+ggplot(myFullDataPlotAsp, aes(x=CheckCatAsp, y=age)) +
   geom_boxplot(size=.75) +
   geom_jitter(alpha=.5) +
   xlab('Aspirin, none (0), 81 mg (1), 325 mg (2)') +
