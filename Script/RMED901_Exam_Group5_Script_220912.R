@@ -389,7 +389,7 @@ Binom_Dataset %>%
 
 #3.Does the outcome depend on whether there was a trainee present during the procedure?
 
-#the outcome variable is bianray variable (no/yes), and the train variable is also factor variable (0/1), so we will logistic regression to explore the association betwween trainee present and outcome.
+#the outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we will use logistic regression to explore the association between trainee present and outcome.
 # First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression:
 Fulldataset$outcome <- as.factor(Fulldataset$outcome)
 Fulldataset <- Fulldataset %>% 
@@ -399,7 +399,6 @@ logitfit <-
   Fulldataset %>%  
   glm(outcome ~ train, family = "binomial", data = .) %>% 
   broom::tidy(conf.int = T)
-print(logitfit)
 summary(logitfit)
 # from the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
 
