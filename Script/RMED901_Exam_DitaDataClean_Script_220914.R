@@ -358,6 +358,28 @@ ggplot(myFullDataPlotAspi, aes(x=CheckCatAsp, y=age)) +
 
 #4.According to the data, was the indomethacin reducing the risk of pancreatitis?
 
+###Look the data distribution first
 
+Fulldataset %>% 
+  ggplot(aes(x = rx, y = risk)) +
+  geom_point()
 
+Fulldataset %>% 
+  ggplot(aes(x = rx, y = risk)) +
+  geom_point() + 
+  geom_smooth(method = "lm") ###there is no line
+
+Fulldataset$rx <- as.factor(Fulldataset$rx)
+
+myFullDataPlotAspi$rx <- as.factor(myFullDataPlotAspi$rx)
+
+# To remove E-10212 bla bla (scientific notations on decimals)
+options(scipen=999)
+
+###Making the model for indometachin vs risk of pancreatitis
+myFullDataPlotAspi %>% 
+  glm(rx ~ risk, data = ., family='binomial') %>% 
+  broom::tidy(conf.int=T)
+
+##From p value and 
 

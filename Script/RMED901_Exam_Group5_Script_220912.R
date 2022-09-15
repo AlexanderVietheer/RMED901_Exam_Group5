@@ -406,4 +406,26 @@ summary(logitfit)
 
 #4.According to the data, was the indomethacin reducing the risk of pancreatitis?
 
+###Look the data distribution first
+
+Fulldataset %>% 
+  ggplot(aes(x = rx, y = risk)) +
+  geom_point()
+
+Fulldataset %>% 
+  ggplot(aes(x = rx, y = risk)) +
+  geom_point() + 
+  geom_smooth(method = "lm") ###there is no line
+
+Fulldataset$rx <- as.factor(Fulldataset$rx)
+
+# To remove E-10212 bla bla (scientific notations on decimals)
+options(scipen=999)
+
+### Making the model for indometachin vs risk of pancreatitis
+Fulldataset %>% 
+  glm(rx ~ risk, data = ., family='binomial') %>% 
+  broom::tidy(conf.int=T)
+
+###from the p value and confidence interval, we concluded that the indometachin is not associated with the risk of pancreatitis. 
 
