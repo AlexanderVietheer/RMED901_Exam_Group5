@@ -227,12 +227,7 @@ scatterplot3 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = risk, 
 # From the scatter plots, did not see a very clear relationship between age, risk and antibody.
 
 # Then we create datafram of these three columns and then plot a correlation matrix.
-<<<<<<< HEAD
-df1 <- Fulldataset %>% 
-  select((age,risk,antibody)
-=======
 df1 <- Fulldataset %>% select(c(age,risk,antibody))
->>>>>>> d5133c5dfc7d64af5adfd05f53ea8c5d06e7ebae
 correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
          addCoef.col = "black",
          number.digits =  3,
