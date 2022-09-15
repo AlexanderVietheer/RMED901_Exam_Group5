@@ -254,7 +254,10 @@ Fulldataset %>%
 
 #-------------------------------------------------------------------------------
 #-------Day7 Tasks: Create plots that would help answer these questions --------
-library(ggplot2)
+library("ggplot2")
+library("devtools")
+library("patchwork")
+
 
 #1.Are there any correlated measurements? Marta
 
@@ -266,7 +269,9 @@ library(ggplot2)
 
 #5.Does the aspirin usage depend on the age? Dita
 
-
+skimr::skim(myData$Dose_asa_81)
+skimr::skim(myData$Dose_asa_325)
+skimr::skim(myData$age)
 #-------------------------------------------------------------------------------
 #------Day8 Tasks: Analyse the dataset and answer the following questions-------
 
