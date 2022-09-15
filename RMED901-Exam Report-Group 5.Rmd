@@ -13,20 +13,40 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 [Check the document](https://mitt.uib.no/groups/68014/files/folder/DATA?preview=4450357)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This is an **exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the datset from the paper in the New England Journal of Medicine, entitled, A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al. More details of the data set can be found in the link above.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{read the data}
+myData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{Loading the package for analysis, echo=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(here)
 ```
+
+```{Data cleaning 1: We observe some variables starting with numbers,and the variable "feature type" has space between the variable name, so we rename these by using the pipe-rename.}
+myData <- myData %>% 
+  rename(Dose_asa_81 = `81asa`,
+         Dose_asa_325 = `325asa`,
+         feature_type = `feature type`)
+```
+
+```{Data cleaning 2: We observed the variable "id" has the two parts, we checked the codebook of the dataset, that the first integer 1-4 indicates site of the study so we use separate() function to separate the id column}
+myData <- myData %>% 
+  separate(col = id, 
+           into = c("site", "id"), 
+           sep = "_")
+```
+
+```{Data cleaning 3: remove the duplicated row in the dataset using the distinct() function}
+myData<- myData %>% 
+  distinct()
+# there are 10 rows with duplicates final n = 1204 
+
+```
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
