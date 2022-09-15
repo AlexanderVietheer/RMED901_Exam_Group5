@@ -393,7 +393,7 @@ Binom_Dataset %>%
 # First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression:
 Fulldataset$outcome <- as.factor(Fulldataset$outcome)
 Fulldataset <- Fulldataset %>% 
-  mutate(outcome = ifelse(outcome=="yes", 1,0) ) 
+  mutate(outcome = ifelse(outcome=="yes", 1,0)) 
 
 logitfit <-
   Fulldataset %>%  
