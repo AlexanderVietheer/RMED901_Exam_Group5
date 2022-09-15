@@ -266,10 +266,9 @@ ggplot(Fulldataset,
   geom_smooth() # visualize the trend
 
 #another way to visualize: 
-mod.1 <- lm(risk~age, data=Fulldataset)
-
-plot(Fulldataset$age,Fulldataset$risk)
-abline(mod.1)
+##mod.1 <- lm(risk~age, data=Fulldataset)
+##plot(Fulldataset$age,Fulldataset$risk)
+##abline(risk~age, data=Fulldataset)
 
 install.packages("sjPlot")
 library(sjPlot)
@@ -388,8 +387,31 @@ ggplot(myDataPlotAsp, aes(x=CheckCatAsp, y=age)) +
 #------Day8 Tasks: Analyse the dataset and answer the following questions-------
 
 #1.Does the outcome depend on the site where the procedure was performed?
+## Because the two variables are categorical, we are using geom_jitter to eyeball the relations between factor.site and outcome.
+ggplot(Fulldataset,
+       aes(x = as.factor(site), y = outcome)) + 
+  geom_jitter() 
+# Overall, All Sites have more "NOs" than "YES". If we compare the numbers of outcomes at each site, it seems that there is an order (i.e., site: 2;1;3;4).
+
+# To analyse the statistics we will use a logistic regression because we have two categorical variables. We use dummy variables for the outcome::1,0.
+Binom_Dataset <- Fulldataset %>% 
+  mutate(outcome = ifelse(outcome=="yes", 1,0) ) 
+#Creating model with glm and representing using tidy(). We are also setting Site 2 as reference category using mutate and factor.   
+glm.1 <- Binom_Dataset %>% 
+  mutate(site = factor(site, levels = c("2", "1", "3", "4"))) %>% 
+  glm(outcome ~ site, data = ., family = "binomial")
+glm.1 %>% 
+  broom::tidy() #The outcome is significant different in site 1 compared to site 2. Site 3 and 4 has a negative trend which however is not significant, this is due to low numbers in sample. 
 
 #2.Does the outcome depend on the gender of the patient?
+#We are using logistic regression for the same reason as for task 1. 
+ggplot(Fulldataset,
+       aes(x = as.factor(gender), y = outcome)) + 
+  geom_jitter()
+
+Binom_Dataset %>% 
+  glm(outcome ~ gender, data = ., family = "binomial") %>% 
+  broom::tidy() # There is no significant difference between gender and outcome. 
 
 #3.Does the outcome depend on whether there was a trainee present during the procedure?
 
