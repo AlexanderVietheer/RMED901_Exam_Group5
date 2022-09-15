@@ -258,7 +258,7 @@ ggplot(Fulldataset,
 # The patients were older in the female group, and younger in the male group.
 
 
-#4.Does the risk score change with age of the patients? Alex 
+#4.Does the risk score change with age of the patients? 
 #Both variables are numerical
 ggplot(Fulldataset,
        aes(x = age, y = risk)) +
@@ -277,7 +277,7 @@ library(car)
 plot_model(mod.1, type="diag")
 # it does not look like that there is a significant trend between risk and age.  
 
-#5.Does the aspirin usage depend on the age? Dita
+#5.Does the aspirin usage depend on the age? 
 
 skimr::skim(myData$Dose_asa_81)
 skimr::skim(myData$Dose_asa_325)
@@ -290,7 +290,7 @@ glimpse(Fulldataset$age)
 
 view(Fulldataset$age)
 
-###Using Fulldatapset
+###Using Fulldataset
 
 library(tibble)
 library(MASS) # for ordinal log regression
