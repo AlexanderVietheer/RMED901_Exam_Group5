@@ -297,20 +297,22 @@ library(tibble)
 library(MASS) # for ordinal log regression
 
 #checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
-myFullDataPlotAsp <- Fulldataset %>% add_column(checkAspUse = ifelse(Fulldataset$Dose_asa_81==1&Fulldataset$Dose_asa_325==1,1,0))
+myFullDataPlotAspi <- Fulldataset %>% add_column(checkAspUse = ifelse(Fulldataset$Dose_asa_81==1&Fulldataset$Dose_asa_325==1,1,0))
 
-1 %in% myFullDataPlotAsp$checkAspUse ###Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
+1 %in% myFullDataPlotAspi$checkAspUse ###Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
 
-summary(myFullDataPlotAsp$checkAspUse) ###Nobody taking both aspirin dose 81 and 325 mg
+summary(myFullDataPlotAspi$checkAspUse) ###Nobody taking both aspirin dose 81 and 325 mg
 
-summary(myFullDataPlotAsp) ###I am using new dataframe myDataPlotAsp now when I add new column to check usage of both aspirin doses because I do not want to change clean data myData, also for later modifications by myself
+summary(myFullDataPlotAspi) ###I am using new dataframe myDataPlotAspi now when I add new column to check usage of both aspirin doses because I do not want to change clean data myData, also for later modifications by myself
 
-###Dropping missing data from myDataPlotAsp
+###Dropping missing data from myDataPlotAsp #SKIP THIS
 myFullDataPlotAsp <- drop_na(myFullDataPlotAsp)
+myFullDataPlotAspi <- drop_na(Dose_asa_81)
+myFullDataPlotAsp <- drop_na(myFullDataPlotAsp$Dose_asa_325)
 
 ###Converting (but creating a new variables to be safe, not changing the original ones) to factor
-myFullDataPlotAsp$Asa81Fac <- as.factor(myFullDataPlotAsp$Dose_asa_81)
-myFullDataPlotAsp$Asa325Fac <- as.factor(myFullDataPlotAsp$Dose_asa_325)
+myFullDataPlotAspi$Asa81Fac <- as.factor(myFullDataPlotAspi$Dose_asa_81)
+myFullDataPlotAspi$Asa325Fac <- as.factor(myFullDataPlotAspi$Dose_asa_325)
 
 ### To remove E-10212 bla bla (scientific notations on decimals)
 options(scipen=999)
@@ -324,45 +326,37 @@ modelAsa325 <- glm(Asa325Fac ~ age, family='binomial', data=myFullDataPlotAsp)
 summary(modelAsa81)
 
 ###Standard boxplot aspirin dose 81 mg
-boxplot(age ~ Asa81Fac, data=myFullDataPlotAsp, xlab='Aspirin 81 mg Yes(1) No(0)',
+boxplot(age ~ Asa81Fac, data=myFullDataPlotAspi, xlab='Aspirin 81 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 81 mg and age')
 
-###Alternative plot with data points aspirin dose 81 mg
-ggplot(myFullDataPlotAsp, aes(x=Asa81Fac, y=age)) +
-  geom_boxplot(size=.75) +
-  geom_jitter(alpha=.5) +
-  xlab('Aspirin, none (0), 81 mg (1)') +
-  ylab('Age')
-
 ###Standard boxplot aspirin dose 325 mg
-boxplot(age ~ Asa325Fac, data=myFullDataPlotAsp, xlab='Aspirin 325 mg Yes(1) No(0)',
+boxplot(age ~ Asa325Fac, data=myFullDataPlotAspi, xlab='Aspirin 325 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 325 mg and age')
-
-###Alternative plot with data points aspirin dose 325 mg
-ggplot(myFullDataPlotAsp, aes(x=Asa325Fac, y=age)) +
-  geom_boxplot(size=.75) +
-  geom_jitter(alpha=.5) +
-  xlab('Aspirin, none (0), 325 mg (1)') +
-  ylab('Age')
 
 ###Since nobody taking both 81 AND 325 mg, you can actually combine these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, you'll need to use orginal logistic regression (since the dependent/outcome variable is not binary).
 
 ###Converting Aspirin to categorical with 3 categories
-myFullDataPlotAsp <- myFullDataPlotAsp %>% 
+myFullDataPlotAspi <- myFullDataPlotAspi %>% 
   add_column(CheckCatAsp = 
-               ifelse(myFullDataPlotAsp$Dose_asa_81==1,1,                                                                   ifelse(myFullDataPlotAsp$Dose_asa_325==1,2,0)))
+               ifelse(myFullDataPlotAspi$Dose_asa_81==1,1,                                                               ifelse(myFullDataPlotAspi$Dose_asa_325==1,2,0)))
 
-myFullDataPlotAsp$CheckCatAsp <- as.factor(myFullDataPlotAsp$CheckCatAsp)
+myFullDataPlotAspi$CheckCatAsp <- as.factor(myFullDataPlotAspi$CheckCatAsp)
 
 ###Creating plot for ordinal aspirin
-ggplot(myFullDataPlotAsp, aes(x=CheckCatAsp, y=age)) +
+ggplot(myFullDataPlotAspi, aes(x=CheckCatAsp, y=age)) +
   geom_boxplot(size=.75) +
   geom_jitter(alpha=.5) +
   xlab('Aspirin, none (0), 81 mg (1), 325 mg (2)') +
   ylab('Age')
 
+ggplot(myFullDataPlotAspi, aes(x=CheckCatAsp, y=age)) +
+  geom_boxplot(size=.75) +
+  xlab('Aspirin, none (0), 81 mg (1), 325 mg (2)') +
+  ylab('Age')
+
+###It seems from boxplots the use of aspirin is increasing with age and the dosage as well, the older the higher dose 
 
 #-------------------------------------------------------------------------------
 #------Day8 Tasks: Analyse the dataset and answer the following questions-------
