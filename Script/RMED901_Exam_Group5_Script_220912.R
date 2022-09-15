@@ -393,17 +393,15 @@ Binom_Dataset %>%
 # First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression:
 Fulldataset$outcome <- as.factor(Fulldataset$outcome)
 Fulldataset <- Fulldataset %>% 
-  mutate(newoutcome =outcome, newoutcome = case_when(outcome == "no" ~ 0, 
-                           outcome == "yes" ~ 1))
+  mutate(outcome = ifelse(outcome=="yes", 1,0) ) 
 
 logitfit <-
   Fulldataset %>%  
-  glm(newoutcome ~ train, family = "binomial", data = .) %>% 
+  glm(outcome ~ train, family = "binomial", data = .) %>% 
   broom::tidy(conf.int = T)
 print(logitfit)
 summary(logitfit)
-# so the relationship between train and outcome and be written as follows:
-# outcome = -2.23 + 0.64*train, from the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, so the trainee present has better outcomes than without trainee present.
+# from the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
 
 
 #4.According to the data, was the indomethacin reducing the risk of pancreatitis?
