@@ -206,17 +206,15 @@ Fulldataset %>%
 
 #-------------------------------------------------------------------------------
 #-------Day7 Tasks: Create plots that would help answer these questions --------
-<<<<<<< HEAD
+
 library("ggplot2")
 library("devtools")
 library("patchwork")
 
-=======
-
 # loading library
-library(ggplot2)
-library(corrplot)
->>>>>>> 532475b0e5013a84e7b3b406877c2c4b56e5fe78
+library("ggplot2")
+library("corrplot")
+
 
 ##1.Are there any correlated measurements?
 
