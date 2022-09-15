@@ -13,48 +13,116 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 [Check the document](https://mitt.uib.no/groups/68014/files/folder/DATA?preview=4450357)
 
-This is an **exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the datset from the paper in the New England Journal of Medicine, entitled, A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al. More details of the data set can be found in the link above.
-
-```{r}
-#read the data
-myData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
-```
+This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the data set from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103). 
 
 
-```{r}
+
 #Loading the package for analysis
+```{r}
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(here)
 ```
-
+**1.Read the data set**
 ```{r}
-#Data cleaning 1: We observe some variables starting with numbers,and the variable "feature type" has space between the variable name, so we rename these by using the pipe-rename.
+myData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
+```
+**2. Clean the data set**
+
+**#Data cleaning 1:** We observe some variables starting with number,and the variable "feature type" has space between the variable name, so we rename these by using the pipe-rename.
+```{r}
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
          Dose_asa_325 = `325asa`,
          feature_type = `feature type`)
 ```
-
+**#Data cleaning 2:** We observed the variable "id" has the two parts, we checked the codebook of the dataset, the first integer 1-4 indicates site of the study so we use separate() function to separate the id column
 ```{r}
-#Data cleaning 2: We observed the variable "id" has the two parts, we checked the codebook of the dataset, that the first integer 1-4 indicates site of the study so we use separate() function to separate the id column
 myData <- myData %>% 
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
 ```
-
+**#Data cleaning 3:** Remove the duplicated row in the dataset using the distinct() function (there are 10 rows with duplicates)
 ```{r}
-#Data cleaning 3: remove the duplicated row in the dataset using the distinct() function
-myData<- myData %>% 
+myData <- myData %>% 
   distinct()
-# there are 10 rows with duplicates final n = 1204 
 ```
-
+**#Data cleaning 4:** Then we pivot the "feature_type" column into sod and pep columns
 ```{r}
-
+myData$feature_type <- as.factor(myData$feature_type)
+myData$feature_value <- as.numeric(myData$feature_value)
+myData <- myData %>% 
+  pivot_wider(names_from = `feature_type`, values_from = feature_value)
 ```
+**#Data cleaning 5:** Check the missing data
+```{r}
+naniar::gg_miss_var(myData) 
+```
+
+**#Data cleaning 6:** Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent. Use subset() fuction to delete column by name
+```{r}
+df=subset(myData, select = -c(acinar, train, amp, pdstent))
+```
+
+#df is the data frame excluded the cloumns:acinar, train, amp, pdstent from the day 6 task.
+
+**3. Change the variable types:** Make necessary changes in variable types
+
+#A column showing whether age is higher than 35 or not: values High/Low
+```{r}
+myData <- myData %>% 
+  mutate(agegroup = case_when(age <= 35 ~ "Low",
+                              age > 35 ~ "High"))
+```
+#A numeric column showing risk as a percentage of highest possible risk (5.5)
+```{r}
+myData$risk <- as.numeric(myData$risk)
+myData <- myData %>% 
+  mutate(riskpercentage = risk / 5.5)
+```
+#A column showing pep as No/Yes
+```{r}
+myData <- 
+  myData %>% 
+  mutate(Newpep = pep, Newpep = if_else(Newpep == "0", "No", "Yes"))
+```
+#A numeric column showing multiplication of age and risk for each person
+```{r}
+myData$age<-as.numeric(myData$age)
+myData <- myData %>% 
+  mutate(AgemultiplybyRisk = age*risk )
+```
+**4. Change the order of the column as id, site, age and other columns; and arrange id column of the dataset in the order of increasing number**
+```{r}
+myData <- myData %>% 
+  select(id, everything())
+arrange(myData, id)
+```
+**5. Combine the two data sets.**
+
+#Read the additional dataset
+```{r}
+antibodyData <- read_delim(here("DATA", "exam_joindata.txt"), delim = "\t")
+```
+#Separate the columns "id" in the "joindata" dataset.
+```{r}
+antibodyData <- antibodyData %>% 
+  separate(col = id, 
+           into = c("site", "id"), 
+           sep = "_")
+```
+#Combine the two datasets using pipe.
+```{r}
+Fulldataset <- myData %>% 
+  left_join(antibodyData, by = c("id","site"))
+```
+#The Fulldataset contains n = 602 observations and 37 variables. We will work on this Fulldataset.
+
+
+
+
 
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
