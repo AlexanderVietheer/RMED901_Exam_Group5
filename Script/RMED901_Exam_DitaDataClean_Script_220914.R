@@ -212,9 +212,9 @@ library("devtools")
 library("patchwork")
 
 =======
-
-# loading library
-library(ggplot2)
+  
+  # loading library
+  library(ggplot2)
 library(corrplot)
 >>>>>>> 532475b0e5013a84e7b3b406877c2c4b56e5fe78
 
@@ -231,9 +231,9 @@ scatterplot3 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = risk, 
 # Then we create datafram of these three columns and then plot a correlation matrix.
 df1 <- data.frame(age,risk,antibody)
 correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
-         addCoef.col = "black",
-         number.digits =  3,
-         outline = "black")
+                              addCoef.col = "black",
+                              number.digits =  3,
+                              outline = "black")
 # age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
 
 
@@ -255,7 +255,7 @@ ggplot(Fulldataset,
 ggplot(Fulldataset,
        aes(x = as.factor(gender), y = age)) + 
   geom_col(aes(fill = age), position = position_dodge()) +
-           facet_wrap(facets = vars(gender)) 
+  facet_wrap(facets = vars(gender)) 
 
 # The patients were older in the female group, and younger in the male group.
 
@@ -356,7 +356,7 @@ ggplot(myDataPlotAsp, aes(x=Asa325Fac, y=age)) +
 
 ###Converting Aspirin to categorical with 3 categories
 myDataPlotAsp <- myDataPlotAsp %>% add_column(CheckCatAsp = ifelse(myDataPlotAsp$Dose_asa_81==1,1,
-                                                 ifelse(myDataPlotAsp$Dose_asa_325==1,2,0)))
+                                                                   ifelse(myDataPlotAsp$Dose_asa_325==1,2,0)))
 myDataPlotAsp$CheckCatAsp <- as.factor(myDataPlotAsp$CheckCatAsp)
 
 ###Ordinal logistic regression model to test if age significantly associated with both 81 and 325 mg or just one of them.
