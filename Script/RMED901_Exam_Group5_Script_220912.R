@@ -263,18 +263,8 @@ ggplot(Fulldataset,
 ggplot(Fulldataset,
        aes(x = age, y = risk)) +
   geom_point(aes(age)) +
-  geom_smooth() # visualize the trend
+  geom_smooth(method = "lm") # visualize the trend
 
-#another way to visualize: 
-##mod.1 <- lm(risk~age, data=Fulldataset)
-##plot(Fulldataset$age,Fulldataset$risk)
-##abline(risk~age, data=Fulldataset)
-
-install.packages("sjPlot")
-library(sjPlot)
-install.packages("car")
-library(car)
-plot_model(mod.1, type="diag")
 # it does not look like that there is a significant trend between risk and age.  
 
 #5.Does the aspirin usage depend on the age? 
