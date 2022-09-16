@@ -120,7 +120,66 @@ Fulldataset <- myData %>%
 ```
 #The Fulldataset contains n = 602 observations and 37 variables. We will work on this Fulldataset.
 
+#Exploring the data. We observed there are many missing data (402) from antibodyData especially in female
+```{r}
+is.na(Fulldataset)
+naniar::gg_miss_var((Fulldataset), facet = gender)
+```
 
+
+#Group the data by gender. We had 476 females and 126 males, this could be why there was a big difference in missing data between the genders.
+
+```{r}
+Fulldataset %>% 
+  group_by(gender) %>% 
+  count()
+```
+
+#Stratify the data by a categorical column and a report of min, max, mean and sd of a numeric column.
+```{r}
+Fulldataset %>% 
+  group_by(gender) %>% 
+  summarise(min(risk, na.rm = T),max(risk, na.rm = T), mean(risk, na.rm = T), sd(risk, na.rm = T))
+```
+
+#Stratify the data using pipe by a categorical column and a report of min, max, mean and sd of a numeric column for a defined set of observations
+```{r}
+Fulldataset %>% 
+  group_by(gender) %>% 
+  summarise(min(antibody, na.rm = T),max(antibody, na.rm = T), mean(antibody, na.rm = T), sd(antibody, na.rm = T))
+```
+
+
+#Stratify the data only for persons with no recurrent pancreatitis
+```{r}
+Fulldataset %>% 
+  filter(recpanc == 0)
+```
+
+#Stratify the data only for persons recruited in University of Kentucky
+```{r}
+Fulldataset %>% 
+  filter(site == 3)
+```
+
+#Startify the data only for persons older than 45
+```{r}
+Fulldataset %>% 
+  filter(age > 45)
+```
+
+#Stratify the data only for persons with risk higher than 2 and sphincter of Oddi dysfunction type 2. We observed no patients fall in this category
+```{r}
+Fulldataset %>% 
+  filter(risk > 2 & sod_type ==2)
+```
+
+#Explore the data by creating a table to observe gender and sphincter of Oddi dysfunction type 
+```{r}
+Fulldataset %>% 
+  select(gender, sod_type) %>% 
+  count(gender, sod_type)
+```
 
 
 
