@@ -122,7 +122,7 @@ Fulldataset <- myData %>%
 
 #Exploring the data. We observed there are many missing data (402) from antibodyData especially in female
 ```{r}
-is.na(Fulldataset)
+sum(is.na(Fulldataset))
 naniar::gg_miss_var((Fulldataset), facet = gender)
 ```
 
