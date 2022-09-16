@@ -126,6 +126,7 @@ is.na(Fulldataset)
 naniar::gg_miss_var((Fulldataset), facet = gender)
 ```
 
+<<<<<<< HEAD
 
 #Group the data by gender. We had 476 females and 126 males, this could be why there was a big difference in missing data between the genders.
 
@@ -140,6 +141,20 @@ Fulldataset %>%
 Fulldataset %>% 
   group_by(gender) %>% 
   summarise(min(risk, na.rm = T),max(risk, na.rm = T), mean(risk, na.rm = T), sd(risk, na.rm = T))
+=======
+```{Data cleaning 3: remove the duplicated row in the dataset using the distinct() function}
+myData<- myData %>% 
+  distinct()
+```
+### there are 10 rows with duplicates final n = 1204 
+
+## Tidy 4: Then we pivot the column into sod and pep columns
+```{r}
+myData$feature_type <- as.factor(myData$feature_type)
+myData$feature_value <- as.numeric(myData$feature_value)
+myData <- myData %>% 
+  pivot_wider(names_from = `feature_type`, values_from = feature_value)
+>>>>>>> 4fa12c4 (change)
 ```
 
 #Stratify the data using pipe by a categorical column and a report of min, max, mean and sd of a numeric column for a defined set of observations
