@@ -203,6 +203,15 @@ library("ggplot2")
 library("corrplot")
 ```
 
+#1.Are there any correlated measurements?
 
+##In our data set, only the age, antibody and risk are the numeric variables,so we can explore the correlation betwwen age, risk, antibody. So we will plot the correlations between age, risk and antibody
+## We can check the correlation by plotting the scatter plot of two variables first:
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+scatterplot1 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = risk))
+scatterplot2 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = antibody))
+scatterplot3 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = risk, y = antibody))
+```
+### From the scatter plots, did not see a very clear relationship between age, risk and antibody.
+
