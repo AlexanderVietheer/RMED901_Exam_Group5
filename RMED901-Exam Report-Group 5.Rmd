@@ -210,13 +210,17 @@ library("corrplot")
 
 ```{r}
 scatterplot1 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = risk))
+scatterplot1
 scatterplot2 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = antibody))
+scatterplot2 
 scatterplot3 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = risk, y = antibody))
+scatterplot3 
 ```
 ###From the scatter plots, did not see a very clear relationship between age, risk and antibody.
 
 #Then we create datafram of these three columns and then plot a correlation matrix.
 ```{r}
+library(corrplot)
 df1 <- Fulldataset %>% select(c(age,risk,antibody))
 correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
          addCoef.col = "black",
@@ -300,14 +304,19 @@ Fulldataset$Asa325Fac <- as.factor(Fulldataset$Dose_asa_325)
 ```{r}
 options(scipen=999)
 ```
-###Setting models
+###Setting model ASA81
 ```{r}
 modelAsa81 <- glm(Asa81Fac ~ age, family='binomial', data=Fulldataset)
 summary(modelAsa81)
+```
 
+#model ASA325
+```{r}
 modelAsa325 <- glm(Asa325Fac ~ age, family='binomial', data=Fulldataset)
 summary(modelAsa81)
 ```
+
+
 ###Standard boxplot aspirin dose 81 mg
 ```{r}
 boxplot(age ~ Asa81Fac, data=Fulldataset, xlab='Aspirin 81 mg Yes(1) No(0)',
@@ -338,6 +347,9 @@ ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
   xlab('Aspirin, none (0), 81 mg (1), 325 mg (2)') +
   ylab('Age')
 
+```
+#Boxplot
+```{r}
 ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
   geom_boxplot(size=.75) +
   xlab('Aspirin, none (0), 81 mg (1), 325 mg (2)') +
