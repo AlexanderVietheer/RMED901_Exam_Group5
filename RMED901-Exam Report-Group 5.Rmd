@@ -196,7 +196,7 @@ Fulldataset %>%
   count(gender, sod_type)
 ```
 
-## adding extra libraries
+##adding extra libraries
 ```{r}
 library("patchwork")
 library("ggplot2")
@@ -206,16 +206,16 @@ library("corrplot")
 #1.Are there any correlated measurements?
 
 ##In our data set, only the age, antibody and risk are the numeric variables,so we can explore the correlation betwwen age, risk, antibody. So we will plot the correlations between age, risk and antibody
-## We can check the correlation by plotting the scatter plot of two variables first:
+##We can check the correlation by plotting the scatter plot of two variables first:
 
 ```{r}
 scatterplot1 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = risk))
 scatterplot2 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = antibody))
 scatterplot3 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = risk, y = antibody))
 ```
-### From the scatter plots, did not see a very clear relationship between age, risk and antibody.
+###From the scatter plots, did not see a very clear relationship between age, risk and antibody.
 
-# Then we create datafram of these three columns and then plot a correlation matrix.
+#Then we create datafram of these three columns and then plot a correlation matrix.
 ```{r}
 df1 <- Fulldataset %>% select(c(age,risk,antibody))
 correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
@@ -223,7 +223,7 @@ correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
          number.digits =  3,
          outline = "black")
 ```
-## age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
+##age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
 
 #2.Does the age distribution depend on sod_type? 
 ##age is numeric and sod_type is categorical
@@ -232,13 +232,32 @@ ggplot(Fulldataset,
        aes(x = sod_type, y = age)) +
   geom_col(aes(sod_type))
 ```
-### It looks like there is an higher number of older patients with Type2. 
+###It looks like there is an higher number of older patients with Type2. 
 
-# Might this only depend on the higher number of older patient? Creating a boxplot to get an impression of the median: 
+#Might this only depend on the higher number of older patient? Creating a boxplot to get an impression of the median: 
 ```{r}
 ggplot(Fulldataset,
        aes(x = sod_type, y = age)) +
   geom_boxplot(aes(sod_type))
 ```
+###In this dataset, the age tend to be older in Type1 than Type2 and 3. 
 
+##3.Does the age distribution of the patients depend on their sex (gender)?
+```{r}
+ggplot(Fulldataset,
+       aes(x = as.factor(gender), y = age)) + 
+  geom_col(aes(fill = age), position = position_dodge()) +
+           facet_wrap(facets = vars(gender)) 
+```
+### The patients were older in the female group, and younger in the male group.
+
+#4.Does the risk score change with age of the patients? 
+##Both variables are numerical
+```{r}
+ggplot(Fulldataset,
+       aes(x = age, y = risk)) +
+  geom_point(aes(age)) +
+  geom_smooth(method = "lm")
+```
+# it does look like that there is a relation between risk and age.  
 
