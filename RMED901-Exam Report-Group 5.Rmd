@@ -261,3 +261,86 @@ ggplot(Fulldataset,
 ```
 # it does look like that there is a relation between risk and age.  
 
+#5.Does the aspirin usage depend on the age? 
+```{r}
+skimr::skim(myData$Dose_asa_81)
+skimr::skim(myData$Dose_asa_325)
+skimr::skim(myData$age)
+head(Fulldataset$Dose_asa_81)
+head(Fulldataset$age)
+glimpse(Fulldataset$age)
+```
+
+#Using Fulldataset
+```{r}
+library(tibble)
+library(MASS) # for ordinal log regression
+```
+##checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
+```{r}
+Fulldataset <- Fulldataset %>% add_column(checkAspUse = ifelse(Fulldataset$Dose_asa_81==1&Fulldataset$Dose_asa_325==1,1,0))
+1 %in% Fulldataset$checkAspUse
+```
+###Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
+
+```{r}
+summary(Fulldataset$checkAspUse)
+```
+###Nobody taking both aspirin dose 81 and 325 mg
+```{r}
+summary(Fulldataset)
+```
+
+##Converting (but creating a new variables to be safe, not changing the original ones) to factor
+```{r}
+Fulldataset$Asa81Fac <- as.factor(Fulldataset$Dose_asa_81)
+Fulldataset$Asa325Fac <- as.factor(Fulldataset$Dose_asa_325)
+```
+### To remove E-10212 bla bla (scientific notations on decimals)
+```{r}
+options(scipen=999)
+```
+###Setting models
+```{r}
+modelAsa81 <- glm(Asa81Fac ~ age, family='binomial', data=Fulldataset)
+summary(modelAsa81)
+
+modelAsa325 <- glm(Asa325Fac ~ age, family='binomial', data=Fulldataset)
+summary(modelAsa81)
+```
+###Standard boxplot aspirin dose 81 mg
+```{r}
+boxplot(age ~ Asa81Fac, data=Fulldataset, xlab='Aspirin 81 mg Yes(1) No(0)',
+        ylab='Age',
+        main='Boxplot aspirin 81 mg and age')
+```
+###Standard boxplot aspirin dose 325 mg
+```{r}
+boxplot(age ~ Asa325Fac, data=Fulldataset, xlab='Aspirin 325 mg Yes(1) No(0)',
+        ylab='Age',
+        main='Boxplot aspirin 325 mg and age')
+```
+###Since nobody taking both 81 AND 325 mg, you can actually combine these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, you'll need to use orginal logistic regression (since the dependent/outcome variable is not binary).
+
+###Converting Aspirin to categorical with 3 categories
+```{r}
+Fulldataset <- Fulldataset %>% 
+  add_column(CheckCatAsp = 
+              ifelse(Fulldataset$Dose_asa_81==1,1,                                                               ifelse(Fulldataset$Dose_asa_325==1,2,0)))
+
+Fulldataset$CheckCatAsp <- as.factor(Fulldataset$CheckCatAsp)
+```
+###Creating plot for ordinal aspirin
+```{r}
+ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
+  geom_boxplot(size=.75) +
+  geom_jitter(alpha=.5) +
+  xlab('Aspirin, none (0), 81 mg (1), 325 mg (2)') +
+  ylab('Age')
+
+ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
+  geom_boxplot(size=.75) +
+  xlab('Aspirin, none (0), 81 mg (1), 325 mg (2)') +
+  ylab('Age')
+```
+###It seems from boxplots the use of aspirin is increasing with age and the dosage as well, the older the higher dose 
