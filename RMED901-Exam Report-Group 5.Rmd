@@ -223,6 +223,22 @@ correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
          number.digits =  3,
          outline = "black")
 ```
+## age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
 
+#2.Does the age distribution depend on sod_type? 
+##age is numeric and sod_type is categorical
+```{r}
+ggplot(Fulldataset,
+       aes(x = sod_type, y = age)) +
+  geom_col(aes(sod_type))
+```
+### It looks like there is an higher number of older patients with Type2. 
+
+# Might this only depend on the higher number of older patient? Creating a boxplot to get an impression of the median: 
+```{r}
+ggplot(Fulldataset,
+       aes(x = sod_type, y = age)) +
+  geom_boxplot(aes(sod_type))
+```
 
 
