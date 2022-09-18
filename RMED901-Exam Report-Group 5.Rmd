@@ -254,22 +254,17 @@ ggplot(Fulldataset,
 
 #5.Does the aspirin usage depend on the age? 
 ```{r}
-skimr::skim(myData$Dose_asa_81)
-skimr::skim(myData$Dose_asa_325)
-skimr::skim(myData$age)
-head(Fulldataset$Dose_asa_81)
-head(Fulldataset$age)
-glimpse(Fulldataset$age)
+skimr::skim(Fulldataset$Dose_asa_81)
+skimr::skim(Fulldataset$Dose_asa_325)
+skimr::skim(Fulldataset$age)
 ```
 
-#Using Fulldataset
-```{r}
-library(tibble)
-library(MASS) # for ordinal log regression
-```
 ##checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
 ```{r}
-Fulldataset <- Fulldataset %>% add_column(checkAspUse = ifelse(Fulldataset$Dose_asa_81==1&Fulldataset$Dose_asa_325==1,1,0))
+Fulldataset <- Fulldataset %>% 
+              add_column(checkAspUse = 
+              ifelse(Fulldataset$Dose_asa_81==1&Fulldataset$Dose_asa_325==1,1,0))
+
 1 %in% Fulldataset$checkAspUse
 ```
 ###Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
@@ -282,27 +277,11 @@ summary(Fulldataset$checkAspUse)
 summary(Fulldataset)
 ```
 
-##Converting (but creating a new variables to be safe, not changing the original ones) to factor
+##Converting two Aspirin doses to factor
 ```{r}
 Fulldataset$Asa81Fac <- as.factor(Fulldataset$Dose_asa_81)
 Fulldataset$Asa325Fac <- as.factor(Fulldataset$Dose_asa_325)
 ```
-### To remove E-10212 bla bla (scientific notations on decimals)
-```{r}
-options(scipen=999)
-```
-###Setting model ASA81
-```{r}
-modelAsa81 <- glm(Asa81Fac ~ age, family='binomial', data=Fulldataset)
-summary(modelAsa81)
-```
-
-#model ASA325
-```{r}
-modelAsa325 <- glm(Asa325Fac ~ age, family='binomial', data=Fulldataset)
-summary(modelAsa81)
-```
-
 
 ###Standard boxplot aspirin dose 81 mg
 ```{r}
@@ -316,17 +295,18 @@ boxplot(age ~ Asa325Fac, data=Fulldataset, xlab='Aspirin 325 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 325 mg and age')
 ```
-###Since nobody taking both 81 AND 325 mg, you can actually combine these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, you'll need to use orginal logistic regression (since the dependent/outcome variable is not binary).
+###Since nobody taking both Aspirin dose 81 AND 325 mg, we combined these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, we would need to use orginal logistic regression (since the dependent/outcome variable is not binary).
 
 ###Converting Aspirin to categorical with 3 categories
 ```{r}
 Fulldataset <- Fulldataset %>% 
   add_column(CheckCatAsp = 
-              ifelse(Fulldataset$Dose_asa_81==1,1,                                                               ifelse(Fulldataset$Dose_asa_325==1,2,0)))
+              ifelse(Fulldataset$Dose_asa_81==1,1,                                                
+                     ifelse(Fulldataset$Dose_asa_325==1,2,0)))
 
 Fulldataset$CheckCatAsp <- as.factor(Fulldataset$CheckCatAsp)
 ```
-###Creating plot for ordinal aspirin
+###Creating boxplot for ordinal aspirin
 ```{r}
 ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
   geom_boxplot(size=.75) +
@@ -335,14 +315,8 @@ ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
   ylab('Age')
 
 ```
-#Boxplot
-```{r}
-ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
-  geom_boxplot(size=.75) +
-  xlab('Aspirin, none (0), 81 mg (1), 325 mg (2)') +
-  ylab('Age')
-```
-###It seems from boxplots the use of aspirin is increasing with age and the dosage as well, the older the higher dose 
+###It seems from the boxplots the use of aspirin is increasing with age and the dosage as well, the older the age, the higher the aspirin dose 
+
 # 5. Does the outcome depend on the site where the procedure was performed
 ```{r}
 ggplot(Fulldataset,
@@ -409,14 +383,12 @@ Fulldataset %>%
 
 Fulldataset$rx <- as.factor(Fulldataset$rx)
 
-options(scipen=999)
-
 Fulldataset %>% 
   glm(rx ~ risk, data = ., family='binomial') %>% 
   broom::tidy(conf.int=T)
 
 ```
-#Looking at the data distribution first. There is no line. So we remove E-10212 bla bla (scientific notations on decimals). We then make the model for indometachin vs risk of pancreatitis. 
+#Looking at the data distribution first. We made the model for indometachin vs risk of pancreatitis. 
 ## From the p value and confidence interval, we concluded that the indometachin is not associated with the risk of pancreatitis. 
 
 
