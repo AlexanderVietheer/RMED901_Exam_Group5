@@ -1,4 +1,4 @@
- ---
+---
 title: "RMED901-Exam Report-Group 5"
 author: Alexander Vietheer, Dinastry Pramadita Zakiudin, Marta Espevold Hjelmeland
   and Shanshan Xu
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 [Check the document](https://mitt.uib.no/groups/68014/files/folder/DATA?preview=4450357)
 
-This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the data set from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103). 
+This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the data set from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103)
 
 
 #Loading the package for analysis
@@ -22,6 +22,8 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(here)
+library(patchwork)
+library(corrplot)
 ```
 
 **1.Read the dataset**
@@ -44,19 +46,19 @@ myData <- myData %>%
            into = c("site", "id"), 
            sep = "_")
 ```
-**#Tidying data 2.3:** Remove the duplicated row in the dataset using the distinct() function (there are 10 rows with duplicates)
+**#Tidying data 2.3:** Remove the duplicated row in the dataset using the distinct() function (there are 10 rows with duplicates).
 ```{r}
 myData <- myData %>% 
   distinct()
 ```
-**#Tidying data 2.4:** Then we pivot the "feature_type" column into sod and pep columns
+**#Tidying data 2.4:** Then we pivot the "feature_type" column into sod and pep columns.
 ```{r}
 myData$feature_type <- as.factor(myData$feature_type)
 myData$feature_value <- as.numeric(myData$feature_value)
 myData <- myData %>% 
   pivot_wider(names_from = `feature_type`, values_from = feature_value)
 ```
-**#Tidying data 2.5:** Check the missing data and number of the missing data
+**#Tidying data 2.5:** Check the missing data and number of the missing data.
 ```{r}
 naniar::gg_miss_var(myData) 
 myData$bleed %>% is.na() %>% 
@@ -66,45 +68,51 @@ myData$bleed %>% is.na() %>%
 
 **3. Data wrangling**
 
-**#3.1:** Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent. Use subset() fuction to delete column by name
+**#3.1: Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent. Use subset() fuction to delete column by name**
 ```{r}
 df=subset(myData, select = -c(acinar, train, amp, pdstent))
 ```
 #df is the data frame excluded the cloumns:acinar, train, amp, pdstent from the day 6 task.
 
-**#3.2:** Change the variable types(Make necesary changes in variable types)
+**#3.2: Make necessary changes in variable types**
 
-#A column showing whether age is higher than 35 or not: values High/Low
+
+**#3.3: Create a set  new columns**
+
+#3.3.1. A column showing whether age is higher than 35 or not: values High/Low
 ```{r}
 myData <- myData %>% 
   mutate(agegroup = case_when(age <= 35 ~ "Low",
                               age > 35 ~ "High"))
 ```
-#A numeric column showing risk as a percentage of highest possible risk (5.5)
+#3.3.2. A numeric column showing risk as a percentage of highest possible risk (5.5)
 ```{r}
 myData$risk <- as.numeric(myData$risk)
 myData <- myData %>% 
   mutate(riskpercentage = risk / 5.5)
 ```
-#A column showing pep as No/Yes
+#3.3.3. A column showing pep as No/Yes
 ```{r}
 myData <- 
   myData %>% 
   mutate(Newpep = pep, Newpep = if_else(Newpep == "0", "No", "Yes"))
 ```
-#A numeric column showing multiplication of age and risk for each person
+#3.3.4. A numeric column showing multiplication of age and risk for each person
 ```{r}
 myData$age<-as.numeric(myData$age)
 myData <- myData %>% 
   mutate(AgemultiplybyRisk = age*risk )
 ```
-**4. Change the order of the column as id, site, age and other columns; and arrange id column of the dataset in the order of increasing number**
+**#3.4: Set the order of column as id, site, age and other columns**
 ```{r}
 myData <- myData %>% 
   select(id, everything())
+```
+**#3.5: Arrange ID column of the dataset in the order of increasing number**
+```{r}
 arrange(myData, id)
 ```
-**5. Combine the two data sets.**
+**#3.6: Read and join the additional dataset to the main dataset**
 
 #Read the additional dataset
 ```{r}
@@ -124,61 +132,7 @@ Fulldataset <- myData %>%
 ```
 #The Fulldataset contains n = 602 observations and 37 variables. We will work on this Fulldataset.
 
-#Exploring the data. We observed there are many missing data (402) from antibodyData especially in female
-```{r}
-sum(is.na(Fulldataset))
-naniar::gg_miss_var((Fulldataset), facet = gender)
-```
-
-
-
-#Group the data by gender. We had 476 females and 126 males, this could be why there was a big difference in missing data between the genders.
-```{r}
-Fulldataset %>% 
-  group_by(gender) %>% 
-  count()
-```
-
-#Stratify the data by a categorical column and a report of min, max, mean and sd of a numeric column.
-```{r}
-Fulldataset %>% 
-  group_by(gender) %>% 
-  summarise(min(risk, na.rm = T),max(risk, na.rm = T), mean(risk, na.rm = T), sd(risk, na.rm = T))
-```
-
-
-
-#Stratify the data using pipe by a categorical column and a report of min, max, mean and sd of a numeric column for a defined set of observations
-```{r}
-Fulldataset %>% 
-  group_by(gender) %>% 
-  summarise(min(antibody, na.rm = T),max(antibody, na.rm = T), mean(antibody, na.rm = T), sd(antibody, na.rm = T))
-```
-
-
-#Stratify the data only for persons with no recurrent pancreatitis
-```{r}
-Fulldataset %>% 
-  filter(recpanc == 0)
-```
-
-#Stratify the data only for persons recruited in University of Kentucky
-```{r}
-Fulldataset %>% 
-  filter(site == 3)
-```
-
-#Startify the data only for persons older than 45
-```{r}
-Fulldataset %>% 
-  filter(age > 45)
-```
-
-#Stratify the data only for persons with risk higher than 2 and sphincter of Oddi dysfunction type 2. We observed no patients fall in this category
-```{r}
-Fulldataset %>% 
-  filter(risk > 2 & sod_type ==2)
-```
+**3.7: Explore the data** 
 
 #Explore the data by creating a table to observe gender and sphincter of Oddi dysfunction type 
 ```{r}
@@ -186,18 +140,62 @@ Fulldataset %>%
   select(gender, sod_type) %>% 
   count(gender, sod_type)
 ```
-
-##adding extra libraries
+**3.8: Explore and comment on the missing variables**
 ```{r}
-library("patchwork")
-library("ggplot2")
-library("corrplot")
+sum(is.na(Fulldataset))
+naniar::gg_miss_var((Fulldataset), facet = gender)
+```
+#Group the data by gender. We had 476 females and 126 males, this could be why there was a big difference in missing data between the genders.
+
+```{r}
+Fulldataset %>% 
+  group_by(gender) %>% 
+  count()
 ```
 
-#1.Are there any correlated measurements?
+**3.9: Stratify the data by a categorical column and a report of min, max, mean and sd of a numeric column**
+```{r}
+Fulldataset %>% 
+  group_by(gender) %>% 
+  summarise(min(risk, na.rm = T),max(risk, na.rm = T), mean(risk, na.rm = T), sd(risk, na.rm = T))
+```
 
-##In our data set, only the age, antibody and risk are the numeric variables,so we can explore the correlation betwwen age, risk, antibody. So we will plot the correlations between age, risk and antibody
-##We can check the correlation by plotting the scatter plot of two variables first:
+**3.10: Stratify the data using pipe by a categorical column and a report of min, max, mean and sd of a numeric column for a defined set of observations**
+```{r}
+Fulldataset %>% 
+  group_by(gender) %>% 
+  summarise(min(antibody, na.rm = T),max(antibody, na.rm = T), mean(antibody, na.rm = T), sd(antibody, na.rm = T))
+```
+
+#3.10.1: Stratify the data only for persons with no recurrent pancreatitis
+```{r}
+Fulldataset %>% 
+  filter(recpanc == 0)
+```
+
+#3.10.2: Stratify the data only for persons recruited in University of Kentucky
+```{r}
+Fulldataset %>% 
+  filter(site == 3)
+```
+
+#3.10.3: Startify the data only for persons older than 45
+```{r}
+Fulldataset %>% 
+  filter(age > 45)
+```
+
+#3.10.4: Stratify the data only for persons with risk higher than 2 and sphincter of Oddi dysfunction type 2. We observed no patients fall in this category
+```{r}
+Fulldataset %>% 
+  filter(risk > 2 & sod_type ==2)
+```
+
+**4. Plotting the data**
+
+**#4.1: Are there any correlated measurements?**
+
+#In our data set, only the age, antibody and risk are the numeric variables,so we can explore the correlation betwwen age, risk, antibody. So we will plot the correlations between age, risk and antibody. We can check the correlation by plotting the scatter plot of two variables first:
 
 ```{r}
 scatterplot1 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = risk))
@@ -207,9 +205,10 @@ scatterplot2
 scatterplot3 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = risk, y = antibody))
 scatterplot3 
 ```
-###From the scatter plots, did not see a very clear relationship between age, risk and antibody.
 
-#Then we create datafram of these three columns and then plot a correlation matrix.
+#From the scatter plots, did not see a very clear relationship between age, risk and antibody.
+
+#Then we create datafram (df1) of these three columns and then plot a correlation matrix.
 ```{r}
 library(corrplot)
 df1 <- Fulldataset %>% select(c(age,risk,antibody))
@@ -218,16 +217,19 @@ correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
          number.digits =  3,
          outline = "black")
 ```
-##age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
 
-#2.Does the age distribution depend on sod_type? 
-##age is numeric and sod_type is categorical
+#Age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
+
+**4.2: Does the age distribution depend on sod_type?** 
+
+#age is numeric and sod_type is categorical
 ```{r}
 ggplot(Fulldataset,
        aes(x = sod_type, y = age)) +
   geom_col(aes(sod_type))
 ```
-###It looks like there is an higher number of older patients with Type2. 
+
+#t looks like there is an higher number of older patients with Type2. 
 
 #Might this only depend on the higher number of older patient? Creating a boxplot to get an impression of the median: 
 ```{r}
@@ -235,35 +237,36 @@ ggplot(Fulldataset,
        aes(x = sod_type, y = age)) +
   geom_boxplot(aes(sod_type))
 ```
-###In this dataset, the age tend to be older in Type1 than Type2 and 3. 
 
-##3.Does the age distribution of the patients depend on their sex (gender)?
+#In this dataset, the age tend to be older in Type1 than Type2 and 3. 
+
+**4.3: Does the age distribution of the patients depend on their sex (gender)?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(gender), y = age)) + 
   geom_col(aes(fill = age), position = position_dodge()) +
            facet_wrap(facets = vars(gender)) 
 ```
-### The patients were older in the female group, and younger in the male group.
+#The patients were older in the female group, and younger in the male group.
 
-#4.Does the risk score change with age of the patients? 
-##Both variables are numerical
+**4.4: Does the risk score change with age of the patients?** 
+#Both variables are numerical
 ```{r}
 ggplot(Fulldataset,
        aes(x = age, y = risk)) +
   geom_point(aes(age)) +
   geom_smooth(method = "lm")
 ```
-# it does look like that there is a relation between risk and age.  
+#it does look like that there is a relation between risk and age.  
 
-#5.Does the aspirin usage depend on the age? 
+**4.5: Does the aspirin usage depend on the age?**
 ```{r}
 skimr::skim(Fulldataset$Dose_asa_81)
 skimr::skim(Fulldataset$Dose_asa_325)
 skimr::skim(Fulldataset$age)
 ```
 
-##checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
+#checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
 ```{r}
 Fulldataset <- Fulldataset %>% 
               add_column(checkAspUse = 
@@ -271,35 +274,35 @@ Fulldataset <- Fulldataset %>%
 
 1 %in% Fulldataset$checkAspUse
 ```
-###Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
+#Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
 
 ```{r}
 summary(Fulldataset$checkAspUse)
 ```
-###Nobody taking both aspirin dose 81 and 325 mg
+#Nobody taking both aspirin dose 81 and 325 mg
 ```{r}
 summary(Fulldataset)
 ```
 
-##Converting two Aspirin doses to factor
+#Converting two Aspirin doses to factor
 ```{r}
 Fulldataset$Asa81Fac <- as.factor(Fulldataset$Dose_asa_81)
 Fulldataset$Asa325Fac <- as.factor(Fulldataset$Dose_asa_325)
 ```
 
-###Standard boxplot aspirin dose 81 mg
+#Standard boxplot aspirin dose 81 mg
 ```{r}
 boxplot(age ~ Asa81Fac, data=Fulldataset, xlab='Aspirin 81 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 81 mg and age')
 ```
-###Standard boxplot aspirin dose 325 mg
+#Standard boxplot aspirin dose 325 mg
 ```{r}
 boxplot(age ~ Asa325Fac, data=Fulldataset, xlab='Aspirin 325 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 325 mg and age')
 ```
-###Since nobody taking both Aspirin dose 81 AND 325 mg, we combined these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, we would need to use orginal logistic regression (since the dependent/outcome variable is not binary).
+#Since nobody taking both Aspirin dose 81 AND 325 mg, we combined these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, we would need to use orginal logistic regression (since the dependent/outcome variable is not binary).
 
 ###Converting Aspirin to categorical with 3 categories
 ```{r}
@@ -319,23 +322,25 @@ ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
   ylab('Age')
 
 ```
-###It seems from the boxplots the use of aspirin is increasing with age and the dosage as well, the older the age, the higher the aspirin dose 
+#It seems from the boxplots the use of aspirin is increasing with age and the dosage as well, the older the age, the higher the aspirin dose 
 
-# 5. Does the outcome depend on the site where the procedure was performed
+**5. Statistical analysis**
+
+**5.1: Does the outcome depend on the site where the procedure was performed?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(site), y = outcome)) + 
   geom_jitter() 
 
 ```
-## Because the two variables are categorical, we are using geom_jitter to eyeball the relations between factor.site and outcome. Overall, All Sites have more "NOs" than "YES". If we compare the numbers of outcomes at each site, it seems that there is an order (i.e., site: 2;1;3;4).
+#Because the two variables are categorical, we are using geom_jitter to eyeball the relations between factor.site and outcome. Overall, All Sites have more "NOs" than "YES". If we compare the numbers of outcomes at each site, it seems that there is an order (i.e., site: 2;1;3;4).
 
-### To analyse the statistics we will use a logistic regression because we have two categorical variables. We use dummy variables for the outcome::1,0.
+#To analyse the statistics we will use a logistic regression because we have two categorical variables. We use dummy variables for the outcome::1,0.
 ```{r}
 Binom_Dataset <- Fulldataset %>% 
   mutate(outcome = ifelse(outcome=="yes", 1,0) ) 
 ```
-### Creating model with glm and representing using tidy(). We are also setting Site 2 as reference category using mutate and factor.   
+# Creating model with glm and representing using tidy(). We are also setting Site 2 as reference category using mutate and factor.   
 ```{r}
 glm.1 <- Binom_Dataset %>% 
   mutate(site = factor(site, levels = c("2", "1", "3", "4"))) %>% 
@@ -343,9 +348,9 @@ glm.1 <- Binom_Dataset %>%
 glm.1 %>% 
   broom::tidy()
 ```
-###The outcome is significant different in site 1 compared to site 2. Site 3 and 4 has a negative trend which however is not significant, this is due to low numbers in sample. 
+#The outcome is significant different in site 1 compared to site 2. Site 3 and 4 has a negative trend which however is not significant, this is due to low numbers in sample. 
 
-# 6. Does the outcome depend on the gender of the patient?
+**5.2: Does the outcome depend on the gender of the patient?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(gender), y = outcome)) + 
@@ -357,7 +362,7 @@ Binom_Dataset %>%
 ```
 ## We are using logistic regression for the same reason as for task 1. There is no significant difference between gender and outcome. 
 
-# 7. Does the outcome depend on whether there was a trainee present during the procedure?
+**5.3: Does the outcome depend on whether there was a trainee present during the procedure?**
 ```{r}
 Fulldataset$outcome <- as.factor(Fulldataset$outcome)
 Fulldataset <- Fulldataset %>% 
@@ -370,11 +375,9 @@ logitfit <-
 print(logitfit)
 summary(logitfit)
 ```
-#the outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we will use logistic regression to explore the association between trainee present and outcome.
-## First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression.
-### From the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
+#The outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we will use logistic regression to explore the association between trainee present and outcome.First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression. From the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
 
-# 8. According to the data, was the indomethacin reducing the risk of pancreatitis?
+**5.4: According to the data, was the indomethacin reducing the risk of pancreatitis?**
 ```{r}
 Fulldataset %>% 
   ggplot(aes(x = rx, y = risk)) +
@@ -392,7 +395,6 @@ Fulldataset %>%
   broom::tidy(conf.int=T)
 
 ```
-#Looking at the data distribution first. We made the model for indometachin vs risk of pancreatitis. 
-## From the p value and confidence interval, we concluded that the indometachin is not associated with the risk of pancreatitis. 
+#Looking at the data distribution first. We made the model for indometachin vs risk of pancreatitis. From the p value and confidence interval, we concluded that the indometachin is not associated with the risk of pancreatitis. 
 
 
