@@ -64,7 +64,7 @@ myData <- myData %>%
 ```{r}
 df=subset(myData, select = -c(acinar, train, amp, pdstent))
 ```
-#df is the data frame excluded the cloumns:acinar, train, amp, pdstent from the day 6 task.
+#df is the data frame excluded the cloumns:acinar, train, amp, pdstent.
 
 **#3.2: Make necessary changes in variable types**
 ```{r}
@@ -79,25 +79,25 @@ myData$Dose_asa_325 <- as.factor(myData$Dose_asa_325)
 
 **#3.3: Create a set  new columns**
 
-#3.3.1. A column showing whether age is higher than 35 or not: values High/Low
+##3.3.1. A column showing whether age is higher than 35 or not: values High/Low
 ```{r}
 myData <- myData %>% 
   mutate(agegroup = case_when(age <= 35 ~ "Low",
                               age > 35 ~ "High"))
 ```
-#3.3.2. A numeric column showing risk as a percentage of highest possible risk (5.5)
+##3.3.2. A numeric column showing risk as a percentage of highest possible risk (5.5)
 ```{r}
 myData$risk <- as.numeric(myData$risk)
 myData <- myData %>% 
   mutate(riskpercentage = risk / 5.5)
 ```
-#3.3.3. A column showing pep as No/Yes
+##3.3.3. A column showing pep as No/Yes
 ```{r}
 myData <- 
   myData %>% 
   mutate(Newpep = pep, Newpep = if_else(Newpep == "0", "No", "Yes"))
 ```
-#3.3.4. A numeric column showing multiplication of age and risk for each person
+##3.3.4. A numeric column showing multiplication of age and risk for each person
 ```{r}
 myData$age<-as.numeric(myData$age)
 myData <- myData %>% 
@@ -114,25 +114,25 @@ arrange(myData, id)
 ```
 **#3.6: Read and join the additional dataset to the main dataset**
 
-#Read the additional dataset
+##Read the additional dataset
 ```{r}
 antibodyData <- read_delim(here("DATA", "exam_joindata.txt"), delim = "\t")
 ```
-#Separate the columns "id" in the "joindata" dataset.
+##Separate the columns "id" in the "joindata" dataset.
 ```{r}
 antibodyData <- antibodyData %>% 
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
 ```
-#Combine the two datasets using pipe.
+##Combine the two datasets using pipe.
 ```{r}
 Fulldataset <- myData %>% 
   left_join(antibodyData, by = c("id","site"))
 ```
 #The Fulldataset contains n = 602 observations and 37 variables. We will work on this Fulldataset.
 
-**3.7: Explore the data** 
+**#3.7: Explore the data** 
 
 #Explore the data by creating a table to observe gender and sphincter of Oddi dysfunction type 
 ```{r}
@@ -145,13 +145,15 @@ Fulldataset %>%
 sum(is.na(Fulldataset))
 naniar::gg_miss_var((Fulldataset), facet = gender)
 ```
-#Group the data by gender. We had 476 females and 126 males, this could be why there was a big difference in missing data between the genders.
+#There are 400 patients are missing antibody-variable whilst around 600 patients are missing the bleeding-variable. There are more NAs in the female-population.
 
+##Group by gender
 ```{r}
 Fulldataset %>% 
   group_by(gender) %>% 
   count()
 ```
+# There are 476 females and 126 males in the dataset, this could be an explanation for the big difference in NAs between the genders. 
 
 **3.9: Stratify the data by a categorical column and a report of min, max, mean and sd of a numeric column**
 ```{r}
@@ -195,7 +197,7 @@ Fulldataset %>%
 
 **#4.1: Are there any correlated measurements?**
 
-#In our data set, only the age, antibody and risk are the numeric variables,so we can explore the correlation betwwen age, risk, antibody. So we will plot the correlations between age, risk and antibody. We can check the correlation by plotting the scatter plot of two variables first:
+##In our data set, only the age, antibody and risk are the numeric variables,so we can explore the correlation betwwen age, risk, antibody. So we will plot the correlations between age, risk and antibody. We can check the correlation by plotting the scatter plot of two variables first:
 
 ```{r}
 scatterplot1 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = age, y = risk))
@@ -206,9 +208,8 @@ scatterplot3 <- ggplot(data = Fulldataset) + geom_point(mapping = aes(x = risk, 
 scatterplot3 
 ```
 
-#From the scatter plots, did not see a very clear relationship between age, risk and antibody.
+##From the scatter plots, we did not see a very clear relationship between age, risk and antibody.Then we create datafram (df1) of these three columns and then plot a correlation matrix.
 
-#Then we create datafram (df1) of these three columns and then plot a correlation matrix.
 ```{r}
 library(corrplot)
 df1 <- Fulldataset %>% select(c(age,risk,antibody))
@@ -218,55 +219,55 @@ correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
          outline = "black")
 ```
 
-#Age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
+##Age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
 
-**4.2: Does the age distribution depend on sod_type?** 
+**#4.2: Does the age distribution depend on sod_type?** 
 
-#age is numeric and sod_type is categorical
+##age is numeric and sod_type is categorical
 ```{r}
 ggplot(Fulldataset,
        aes(x = sod_type, y = age)) +
   geom_col(aes(sod_type))
 ```
 
-#t looks like there is an higher number of older patients with Type2. 
+##It looks like there is an higher number of older patients with Type2. 
 
-#Might this only depend on the higher number of older patient? Creating a boxplot to get an impression of the median: 
+##Might this only depend on the higher number of older patient? Creating a boxplot to get an impression of the median: 
 ```{r}
 ggplot(Fulldataset,
        aes(x = sod_type, y = age)) +
   geom_boxplot(aes(sod_type))
 ```
 
-#In this dataset, the age tend to be older in Type1 than Type2 and 3. 
+##In this dataset, the age tend to be older in Type1 than Type2 and 3. 
 
-**4.3: Does the age distribution of the patients depend on their sex (gender)?**
+**#4.3: Does the age distribution of the patients depend on their sex (gender)?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(gender), y = age)) + 
   geom_col(aes(fill = age), position = position_dodge()) +
            facet_wrap(facets = vars(gender)) 
 ```
-#The patients were older in the female group, and younger in the male group.
+##The patients were older in the female group, and younger in the male group.
 
-**4.4: Does the risk score change with age of the patients?** 
-#Both variables are numerical
+**#4.4: Does the risk score change with age of the patients?** 
+##Both variables are numerical
 ```{r}
 ggplot(Fulldataset,
        aes(x = age, y = risk)) +
   geom_point(aes(age)) +
   geom_smooth(method = "lm")
 ```
-#it does look like that there is a relation between risk and age.  
+##it does look like that there is a relation between risk and age.  
 
-**4.5: Does the aspirin usage depend on the age?**
+**#4.5: Does the aspirin usage depend on the age?**
 ```{r}
 skimr::skim(Fulldataset$Dose_asa_81)
 skimr::skim(Fulldataset$Dose_asa_325)
 skimr::skim(Fulldataset$age)
 ```
 
-#checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
+##checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
 ```{r}
 Fulldataset <- Fulldataset %>% 
               add_column(checkAspUse = 
@@ -274,37 +275,37 @@ Fulldataset <- Fulldataset %>%
 
 1 %in% Fulldataset$checkAspUse
 ```
-#Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
+##Return FALSE: Nobody taking both aspirin dose 81 and 325 mg
 
 ```{r}
 summary(Fulldataset$checkAspUse)
 ```
-#Nobody taking both aspirin dose 81 and 325 mg
+##Nobody taking both aspirin dose 81 and 325 mg
 ```{r}
 summary(Fulldataset)
 ```
 
-#Converting two Aspirin doses to factor
+##Converting two Aspirin doses to factor
 ```{r}
 Fulldataset$Asa81Fac <- as.factor(Fulldataset$Dose_asa_81)
 Fulldataset$Asa325Fac <- as.factor(Fulldataset$Dose_asa_325)
 ```
 
-#Standard boxplot aspirin dose 81 mg
+##Standard boxplot aspirin dose 81 mg
 ```{r}
 boxplot(age ~ Asa81Fac, data=Fulldataset, xlab='Aspirin 81 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 81 mg and age')
 ```
-#Standard boxplot aspirin dose 325 mg
+##Standard boxplot aspirin dose 325 mg
 ```{r}
 boxplot(age ~ Asa325Fac, data=Fulldataset, xlab='Aspirin 325 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 325 mg and age')
 ```
-#Since nobody taking both Aspirin dose 81 AND 325 mg, we combined these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, we would need to use orginal logistic regression (since the dependent/outcome variable is not binary).
+##Since nobody taking both Aspirin dose 81 AND 325 mg, we combined these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, we would need to use orginal logistic regression (since the dependent/outcome variable is not binary).
 
-###Converting Aspirin to categorical with 3 categories
+##Converting Aspirin to categorical with 3 categories
 ```{r}
 Fulldataset <- Fulldataset %>% 
   add_column(CheckCatAsp = 
@@ -313,7 +314,7 @@ Fulldataset <- Fulldataset %>%
 
 Fulldataset$CheckCatAsp <- as.factor(Fulldataset$CheckCatAsp)
 ```
-###Creating boxplot for ordinal aspirin
+##Creating boxplot for ordinal aspirin
 ```{r}
 ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
   geom_boxplot(size=.75) +
@@ -322,25 +323,25 @@ ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
   ylab('Age')
 
 ```
-#It seems from the boxplots the use of aspirin is increasing with age and the dosage as well, the older the age, the higher the aspirin dose 
+##It seems from the boxplots the use of aspirin is increasing with age and the dosage as well, the older the age, the higher the aspirin dose 
 
 **5. Statistical analysis**
 
-**5.1: Does the outcome depend on the site where the procedure was performed?**
+**#5.1: Does the outcome depend on the site where the procedure was performed?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(site), y = outcome)) + 
   geom_jitter() 
 
 ```
-#Because the two variables are categorical, we are using geom_jitter to eyeball the relations between factor.site and outcome. Overall, All Sites have more "NOs" than "YES". If we compare the numbers of outcomes at each site, it seems that there is an order (i.e., site: 2;1;3;4).
+##Because the two variables are categorical, we are using geom_jitter to eyeball the relations between factor.site and outcome. Overall, All Sites have more "NOs" than "YES". If we compare the numbers of outcomes at each site, it seems that there is an order (i.e., site: 2;1;3;4).
 
-#To analyse the statistics we will use a logistic regression because we have two categorical variables. We use dummy variables for the outcome::1,0.
+##To analyse the statistics we will use a logistic regression because we have two categorical variables. We use dummy variables for the outcome::1,0.
 ```{r}
 Binom_Dataset <- Fulldataset %>% 
   mutate(outcome = ifelse(outcome=="yes", 1,0) ) 
 ```
-# Creating model with glm and representing using tidy(). We are also setting Site 2 as reference category using mutate and factor.   
+##Creating model with glm and representing using tidy(). We are also setting Site 2 as reference category using mutate and factor.   
 ```{r}
 glm.1 <- Binom_Dataset %>% 
   mutate(site = factor(site, levels = c("2", "1", "3", "4"))) %>% 
@@ -348,9 +349,9 @@ glm.1 <- Binom_Dataset %>%
 glm.1 %>% 
   broom::tidy()
 ```
-#The outcome is significant different in site 1 compared to site 2. Site 3 and 4 has a negative trend which however is not significant, this is due to low numbers in sample. 
+##The outcome is significant different in site 1 compared to site 2. Site 3 and 4 has a negative trend which however is not significant, this is due to low numbers in sample. 
 
-**5.2: Does the outcome depend on the gender of the patient?**
+**#5.2: Does the outcome depend on the gender of the patient?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(gender), y = outcome)) + 
@@ -360,9 +361,9 @@ Binom_Dataset %>%
   glm(outcome ~ gender, data = ., family = "binomial") %>% 
   broom::tidy()
 ```
-## We are using logistic regression for the same reason as for task 1. There is no significant difference between gender and outcome. 
+##We are using logistic regression for the same reason as for task 1. There is no significant difference between gender and outcome. 
 
-**5.3: Does the outcome depend on whether there was a trainee present during the procedure?**
+**#5.3: Does the outcome depend on whether there was a trainee present during the procedure?**
 ```{r}
 Fulldataset$outcome <- as.factor(Fulldataset$outcome)
 Fulldataset <- Fulldataset %>% 
@@ -375,9 +376,9 @@ logitfit <-
 print(logitfit)
 summary(logitfit)
 ```
-#The outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we will use logistic regression to explore the association between trainee present and outcome.First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression. From the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
+##The outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we will use logistic regression to explore the association between trainee present and outcome.First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression. From the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
 
-**5.4: According to the data, was the indomethacin reducing the risk of pancreatitis?**
+**#5.4: According to the data, was the indomethacin reducing the risk of pancreatitis?**
 ```{r}
 Fulldataset %>% 
   ggplot(aes(x = rx, y = risk)) +
@@ -395,6 +396,6 @@ Fulldataset %>%
   broom::tidy(conf.int=T)
 
 ```
-#Looking at the data distribution first. We made the model for indometachin vs risk of pancreatitis. From the p value and confidence interval, we concluded that the indometachin is not associated with the risk of pancreatitis. 
+##Looking at the data distribution first. We made the model for indometachin vs risk of pancreatitis. From the p value and confidence interval, we concluded that the indometachin is not associated with the risk of pancreatitis. 
 
 
