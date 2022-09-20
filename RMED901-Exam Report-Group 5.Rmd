@@ -16,7 +16,6 @@ knitr::opts_chunk$set(echo = TRUE)
 This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the data set from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103). 
 
 
-
 #Loading the package for analysis
 ```{r}
 library(tidyverse)
@@ -24,51 +23,56 @@ library(ggplot2)
 library(dplyr)
 library(here)
 ```
-**1.Read the data set**
+
+**1.Read the dataset**
 ```{r}
 myData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
 ```
-**2. Clean the data set**
+**2. Tidy the dataset**
 
-**#Data cleaning 1:** We observe some variables starting with number,and the variable "feature type" has space between the variable name, so we rename these by using the pipe-rename.
+**#Tidying data 2.1:** We observe some variables starting with number,and the variable "feature type" has space between the variable name, so we rename these by using the pipe-rename.
 ```{r}
 myData <- myData %>% 
   rename(Dose_asa_81 = `81asa`,
          Dose_asa_325 = `325asa`,
          feature_type = `feature type`)
 ```
-**#Data cleaning 2:** We observed the variable "id" has the two parts, we checked the codebook of the dataset, the first integer 1-4 indicates site of the study so we use separate() function to separate the id column
+**#Tidying data 2.2:** We observed the variable "id" has the two parts, we checked the codebook of the data set, the first integer 1-4 indicates site of the study, so we use separate() function to separate the id column.
 ```{r}
 myData <- myData %>% 
   separate(col = id, 
            into = c("site", "id"), 
            sep = "_")
 ```
-**#Data cleaning 3:** Remove the duplicated row in the dataset using the distinct() function (there are 10 rows with duplicates)
+**#Tidying data 2.3:** Remove the duplicated row in the dataset using the distinct() function (there are 10 rows with duplicates)
 ```{r}
 myData <- myData %>% 
   distinct()
 ```
-**#Data cleaning 4:** Then we pivot the "feature_type" column into sod and pep columns
+**#Tidying data 2.4:** Then we pivot the "feature_type" column into sod and pep columns
 ```{r}
 myData$feature_type <- as.factor(myData$feature_type)
 myData$feature_value <- as.numeric(myData$feature_value)
 myData <- myData %>% 
   pivot_wider(names_from = `feature_type`, values_from = feature_value)
 ```
-**#Data cleaning 5:** Check the missing data
+**#Tidying data 2.5:** Check the missing data and number of the missing data
 ```{r}
 naniar::gg_miss_var(myData) 
+myData$bleed %>% is.na() %>% 
+  sum() 
+  nrow(myData) 
 ```
 
-**#Data cleaning 6:** Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent. Use subset() fuction to delete column by name
+**3. Data wrangling**
+
+**#3.1:** Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent. Use subset() fuction to delete column by name
 ```{r}
 df=subset(myData, select = -c(acinar, train, amp, pdstent))
 ```
-
 #df is the data frame excluded the cloumns:acinar, train, amp, pdstent from the day 6 task.
 
-**3. Change the variable types:** Make necessary changes in variable types
+**#3.2:** Change the variable types(Make necesary changes in variable types)
 
 #A column showing whether age is higher than 35 or not: values High/Low
 ```{r}

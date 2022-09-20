@@ -241,6 +241,7 @@ correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
 ggplot(Fulldataset,
        aes(x = sod_type, y = age)) +
   geom_col(aes(sod_type))
+
 # It looks like there is an higher number of older patients with Type2. 
 
 #Might this only depend on the higher number of older patient? Creating a boxplot to get an impression of the median: 
