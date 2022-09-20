@@ -166,7 +166,7 @@ Fulldataset <- myData %>%
 #Explore your data.Explore and comment on the missing variables.
 is.na(Fulldataset)
 naniar::gg_miss_var((Fulldataset), facet = gender) # 400 patients are missing antibody-variable whilst around 600 patients are missing the bleeding-variable. There are more NAs in teh female-population. These high numbers of NAs can be problematic for further analyses? 
-###I do not understand why here is talking about bleeding-variable (bleed) again? I followed the commands above and it was already deleted(subset) because we agreed 95% missing so may be not relevant variable? (line 106 until 109)
+
 
 skimr::skim(Fulldataset)
 
