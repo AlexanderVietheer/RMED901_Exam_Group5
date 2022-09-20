@@ -81,11 +81,6 @@ myData$bleed %>% is.na() %>%
 myData$bleed %>% is.na() %>% 
   sum() 
 
-# subset the dataset without bleed var
-myData <- myData %>% subset (select = -bleed)
-glimpse(myData)
-## the bleed variable is not part of the data frame anymore
-
 # look again the data and checking if we could find unusual unique characters and/or numbers which may indicate some variables have different features/measurements.
 colnames(myData)
 skimr::skim(myData)
