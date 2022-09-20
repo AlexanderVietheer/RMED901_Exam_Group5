@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the dataset from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103)
 
 
-#Preparations: loading the package for analysis
+#Preparations: loading the packages
 ```{r}
 library(tidyverse)
 library(ggplot2)
@@ -266,11 +266,6 @@ ggplot(Fulldataset,
 ##it does look like that there is a relation between risk and age.  
 
 **#4.5: Does the aspirin usage depend on the age?**
-```{r}
-skimr::skim(Fulldataset$Dose_asa_81)
-skimr::skim(Fulldataset$Dose_asa_325)
-skimr::skim(Fulldataset$age)
-```
 
 ##checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
 ```{r}
@@ -286,9 +281,6 @@ Fulldataset <- Fulldataset %>%
 summary(Fulldataset$checkAspUse)
 ```
 ##Nobody taking both aspirin dose 81 and 325 mg
-```{r}
-summary(Fulldataset)
-```
 
 ##Converting two Aspirin doses to factor
 ```{r}
@@ -387,10 +379,9 @@ logitfit <-
   glm(outcome ~ train, family = "binomial", data = .) %>% 
   broom::tidy(conf.int = T)
 print(logitfit)
-summary(logitfit)
 ```
 
-##The outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we will use logistic regression to explore the association between trainee present and outcome.First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression. From the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
+##The outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we used logistic regression to explore the association between trainee present and outcome.First, we assigned the outcome variable (no/yes) to (0/1) for logistic regression. From the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
 
 **#5.4: According to the data, was the indomethacin reducing the risk of pancreatitis?**
 ```{r}
