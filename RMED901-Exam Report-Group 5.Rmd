@@ -11,10 +11,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+
 ## R Markdown
 [Check the document](https://mitt.uib.no/groups/68014/files/folder/DATA?preview=4450357)
 
 This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the data set from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103)
+
 
 
 #Loading the package for analysis
@@ -31,7 +33,7 @@ library(corrplot)
 ```{r}
 myData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
 ```
-**2. Tidy the dataset** (Day 5)
+**2. Tidy the dataset (Day 5)**
 
 **#Tidying data 2.1:** We observe some variables starting with number,and the variable "feature type" has space between the variable name, so we rename these by using the pipe-rename.
 ```{r}
@@ -60,7 +62,7 @@ myData <- myData %>%
   pivot_wider(names_from = `feature_type`, values_from = feature_value)
 ```
 
-**3. Data wrangling** (Day 6)
+**3. Data wrangling (Day 6)**
 
 **#3.1: Remove unnecessary columns from the dataframe: acinar, train, amp, pdstent**
 ```{r}
@@ -195,7 +197,7 @@ Fulldataset %>%
   filter(risk > 2 & sod_type ==2)
 ```
 
-**4. Plotting the data**
+**4. Plotting the data (Day 7)**
 
 **#4.1: Are there any correlated measurements?**
 
@@ -327,7 +329,7 @@ ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
 ```
 ##It seems from the boxplots the use of aspirin is increasing with age and the dosage as well, the older the age, the higher the aspirin dose 
 
-**5. Statistical analysis**
+**5. Statistical analysis (Day 8)**
 
 **#5.1: Does the outcome depend on the site where the procedure was performed?**
 ```{r}
