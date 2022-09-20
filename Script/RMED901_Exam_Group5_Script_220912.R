@@ -105,6 +105,15 @@ df=subset(myData, select = -c(acinar, train, amp, pdstent))
 # df is the data frame excluded the cloumns:acinar, train, amp, pdstent from the day 6 task.
 
 #Make necessary changes in variable types
+skimr::skim(myData)
+myData$train <- as.factor(myData$train)
+myData$bleed <- as.factor(myData$bleed)
+myData$sod <- as.factor(myData$sod)
+myData$pep <- as.factor(myData$pep)
+myData$Dose_asa_81 <- as.factor(myData$Dose_asa_81)
+myData$Dose_asa_325 <- as.factor(myData$Dose_asa_325)
+
+
 #Create a set of new columns:
 #  A column showing whether age is higher than 35 or not: values High/Low
 library(dplyr)
