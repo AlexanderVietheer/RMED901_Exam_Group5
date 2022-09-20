@@ -10,13 +10,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-
 ## R Markdown
 [Check the document](https://mitt.uib.no/groups/68014/files/folder/DATA?preview=4450357)
 
-This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the data set from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103)
-
+This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the dataset from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103)
 
 
 #Loading the package for analysis
@@ -72,7 +69,6 @@ df=subset(myData, select = -c(acinar, train, amp, pdstent))
 
 **#3.2: Make necessary changes in variable types**
 ```{r}
-skimr::skim(myData)
 myData$train <- as.factor(myData$train)
 myData$bleed <- as.factor(myData$bleed)
 myData$sod <- as.factor(myData$sod)
@@ -81,7 +77,7 @@ myData$Dose_asa_81 <- as.factor(myData$Dose_asa_81)
 myData$Dose_asa_325 <- as.factor(myData$Dose_asa_325)
 ```
 
-**#3.3: Create a set  new columns**
+**#3.3: Create a set of new columns**
 
 ##3.3.1. A column showing whether age is higher than 35 or not: values High/Low
 ```{r}
@@ -149,6 +145,7 @@ Fulldataset %>%
 sum(is.na(Fulldataset))
 naniar::gg_miss_var((Fulldataset), facet = gender)
 ```
+
 #There are 400 patients are missing antibody-variable whilst around 600 patients are missing the bleeding-variable. There are more NAs in the female-population.
 
 ##Group by gender
@@ -157,7 +154,8 @@ Fulldataset %>%
   group_by(gender) %>% 
   count()
 ```
-# There are 476 females and 126 males in the dataset, this could be an explanation for the big difference in NAs between the genders. 
+
+##There are 476 females and 126 males in the dataset, this could be an explanation for the big difference in NAs between the genders. 
 
 **3.9: Stratify the data by a categorical column and a report of min, max, mean and sd of a numeric column**
 ```{r}
@@ -173,25 +171,25 @@ Fulldataset %>%
   summarise(min(antibody, na.rm = T),max(antibody, na.rm = T), mean(antibody, na.rm = T), sd(antibody, na.rm = T))
 ```
 
-#3.10.1: Stratify the data only for persons with no recurrent pancreatitis
+#3.10.1. Stratify the data only for persons with no recurrent pancreatitis
 ```{r}
 Fulldataset %>% 
   filter(recpanc == 0)
 ```
 
-#3.10.2: Stratify the data only for persons recruited in University of Kentucky
+#3.10.2. Stratify the data only for persons recruited in University of Kentucky
 ```{r}
 Fulldataset %>% 
   filter(site == 3)
 ```
 
-#3.10.3: Startify the data only for persons older than 45
+#3.10.3. Startify the data only for persons older than 45
 ```{r}
 Fulldataset %>% 
   filter(age > 45)
 ```
 
-#3.10.4: Stratify the data only for persons with risk higher than 2 and sphincter of Oddi dysfunction type 2. We observed no patients fall in this category
+#3.10.4. Stratify the data only for persons with risk higher than 2 and sphincter of Oddi dysfunction type 2. We observed no patients fall in this category
 ```{r}
 Fulldataset %>% 
   filter(risk > 2 & sod_type ==2)
@@ -252,9 +250,11 @@ ggplot(Fulldataset,
   geom_col(aes(fill = age), position = position_dodge()) +
            facet_wrap(facets = vars(gender)) 
 ```
+
 ##The patients were older in the female group, and younger in the male group.
 
 **#4.4: Does the risk score change with age of the patients?** 
+
 ##Both variables are numerical
 ```{r}
 ggplot(Fulldataset,
@@ -262,6 +262,7 @@ ggplot(Fulldataset,
   geom_point(aes(age)) +
   geom_smooth(method = "lm")
 ```
+
 ##it does look like that there is a relation between risk and age.  
 
 **#4.5: Does the aspirin usage depend on the age?**
@@ -301,12 +302,14 @@ boxplot(age ~ Asa81Fac, data=Fulldataset, xlab='Aspirin 81 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 81 mg and age')
 ```
+
 ##Standard boxplot aspirin dose 325 mg
 ```{r}
 boxplot(age ~ Asa325Fac, data=Fulldataset, xlab='Aspirin 325 mg Yes(1) No(0)',
         ylab='Age',
         main='Boxplot aspirin 325 mg and age')
 ```
+
 ##Since nobody taking both Aspirin dose 81 AND 325 mg, we combined these two variables into e.g. 0 = no Asp, 1 = Asp 81, 2 = Asp 325. However, to test if the association is significant/not, we would need to use orginal logistic regression (since the dependent/outcome variable is not binary).
 
 ##Converting Aspirin to categorical with 3 categories
@@ -318,6 +321,7 @@ Fulldataset <- Fulldataset %>%
 
 Fulldataset$CheckCatAsp <- as.factor(Fulldataset$CheckCatAsp)
 ```
+
 ##Creating boxplot for ordinal aspirin
 ```{r}
 ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
@@ -327,6 +331,7 @@ ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
   ylab('Age')
 
 ```
+
 ##It seems from the boxplots the use of aspirin is increasing with age and the dosage as well, the older the age, the higher the aspirin dose 
 
 **5. Statistical analysis (Day 8)**
@@ -338,6 +343,7 @@ ggplot(Fulldataset,
   geom_jitter() 
 
 ```
+
 ##Because the two variables are categorical, we are using geom_jitter to eyeball the relations between factor.site and outcome. Overall, All Sites have more "NOs" than "YES". If we compare the numbers of outcomes at each site, it seems that there is an order (i.e., site: 2;1;3;4).
 
 ##To analyse the statistics we will use a logistic regression because we have two categorical variables. We use dummy variables for the outcome::1,0.
@@ -345,6 +351,7 @@ ggplot(Fulldataset,
 Binom_Dataset <- Fulldataset %>% 
   mutate(outcome = ifelse(outcome=="yes", 1,0) ) 
 ```
+
 ##Creating model with glm and representing using tidy(). We are also setting Site 2 as reference category using mutate and factor.   
 ```{r}
 glm.1 <- Binom_Dataset %>% 
@@ -353,6 +360,7 @@ glm.1 <- Binom_Dataset %>%
 glm.1 %>% 
   broom::tidy()
 ```
+
 ##The outcome is significant different in site 1 compared to site 2. Site 3 and 4 has a negative trend which however is not significant, this is due to low numbers in sample. 
 
 **#5.2: Does the outcome depend on the gender of the patient?**
@@ -365,6 +373,7 @@ Binom_Dataset %>%
   glm(outcome ~ gender, data = ., family = "binomial") %>% 
   broom::tidy()
 ```
+
 ##We are using logistic regression for the same reason as for task 1. There is no significant difference between gender and outcome. 
 
 **#5.3: Does the outcome depend on whether there was a trainee present during the procedure?**
@@ -380,6 +389,7 @@ logitfit <-
 print(logitfit)
 summary(logitfit)
 ```
+
 ##The outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we will use logistic regression to explore the association between trainee present and outcome.First, we will assign the outcome variable (no/yes) to (0/1) for logistic regression. From the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
 
 **#5.4: According to the data, was the indomethacin reducing the risk of pancreatitis?**
@@ -400,6 +410,7 @@ Fulldataset %>%
   broom::tidy(conf.int=T)
 
 ```
+
 ##Looking at the data distribution first. We made the model for indometachin vs risk of pancreatitis. From the p value and confidence interval, we concluded that the indometachin is not associated with the risk of pancreatitis. 
 
 
