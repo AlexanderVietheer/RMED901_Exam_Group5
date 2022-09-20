@@ -15,7 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This is the **group 5 exam report** for the course **RMED901 22H / Data science with R for medical researchers**, we used the data set from the paper in the New England Journal of Medicine, entitled, [A Randomized Trial of Rectal Indomethacin to Prevent Post-ERCP Pancreatitis, pages 1414-1422 volume 366, 2012 edition, authored by the Elmunzer, BJ, Higgins PDR, et al.](https://www.nejm.org/doi/full/10.1056/NEJMoa1111103)
 
-
 #Loading the package for analysis
 ```{r}
 library(tidyverse)
@@ -30,7 +29,7 @@ library(corrplot)
 ```{r}
 myData <- read_delim(here("DATA", "exam_nontidy.txt"), delim = "\t")
 ```
-**2. Tidy the dataset**
+**2. Tidy the dataset** (Day 5)
 
 **#Tidying data 2.1:** We observe some variables starting with number,and the variable "feature type" has space between the variable name, so we rename these by using the pipe-rename.
 ```{r}
@@ -58,24 +57,25 @@ myData$feature_value <- as.numeric(myData$feature_value)
 myData <- myData %>% 
   pivot_wider(names_from = `feature_type`, values_from = feature_value)
 ```
-**#Tidying data 2.5:** Check the missing data and number of the missing data.
-```{r}
-naniar::gg_miss_var(myData) 
-myData$bleed %>% is.na() %>% 
-  sum() 
-  nrow(myData) 
-```
 
-**3. Data wrangling**
+**3. Data wrangling** (Day 6)
 
-**#3.1: Remove unnecessary columns from your dataframe: acinar, train, amp, pdstent. Use subset() fuction to delete column by name**
+**#3.1: Remove unnecessary columns from the dataframe: acinar, train, amp, pdstent**
 ```{r}
 df=subset(myData, select = -c(acinar, train, amp, pdstent))
 ```
 #df is the data frame excluded the cloumns:acinar, train, amp, pdstent from the day 6 task.
 
 **#3.2: Make necessary changes in variable types**
-
+```{r}
+skimr::skim(myData)
+myData$train <- as.factor(myData$train)
+myData$bleed <- as.factor(myData$bleed)
+myData$sod <- as.factor(myData$sod)
+myData$pep <- as.factor(myData$pep)
+myData$Dose_asa_81 <- as.factor(myData$Dose_asa_81)
+myData$Dose_asa_325 <- as.factor(myData$Dose_asa_325)
+```
 
 **#3.3: Create a set  new columns**
 
