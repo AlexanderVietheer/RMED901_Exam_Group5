@@ -61,13 +61,13 @@ myData <- myData %>%
 
 **3. Data wrangling (Day 6)**
 
-**3.1: Remove unnecessary columns from the dataframe: acinar, train, amp, pdstent**
+**3.1 Remove unnecessary columns from the dataframe: acinar, train, amp, pdstent**
 ```{r}
 df=subset(myData, select = -c(acinar, train, amp, pdstent))
 ```
 #df is the data frame excluded the cloumns:acinar, train, amp, pdstent.
 
-**3.2: Make necessary changes in variable types**
+**3.2 Make necessary changes in variable types**
 ```{r}
 myData$train <- as.factor(myData$train)
 myData$bleed <- as.factor(myData$bleed)
@@ -77,7 +77,7 @@ myData$Dose_asa_81 <- as.factor(myData$Dose_asa_81)
 myData$Dose_asa_325 <- as.factor(myData$Dose_asa_325)
 ```
 
-**3.3: Create a set of new columns**
+**3.3 Create a set of new columns**
 
 ##3.3.1. A column showing whether age is higher than 35 or not: values High/Low
 ```{r}
@@ -103,16 +103,16 @@ myData$age<-as.numeric(myData$age)
 myData <- myData %>% 
   mutate(AgemultiplybyRisk = age*risk )
 ```
-**3.4: Set the order of column as id, site, age and other columns**
+**3.4 Set the order of column as id, site, age and other columns**
 ```{r}
 myData <- myData %>% 
   select(id, everything())
 ```
-**3.5: Arrange ID column of the dataset in the order of increasing number**
+**3.5 Arrange ID column of the dataset in the order of increasing number**
 ```{r}
 arrange(myData, id)
 ```
-**3.6: Read and join the additional dataset to the main dataset**
+**3.6 Read and join the additional dataset to the main dataset**
 
 ##Read the additional dataset
 ```{r}
@@ -132,7 +132,7 @@ Fulldataset <- myData %>%
 ```
 #The Fulldataset contains n = 602 observations and 37 variables. We will work on this Fulldataset.
 
-**3.7: Explore the data** 
+**3.7 Explore the data** 
 
 #Explore the data by creating a table to observe gender and sphincter of Oddi dysfunction type 
 ```{r}
@@ -140,7 +140,7 @@ Fulldataset %>%
   select(gender, sod_type) %>% 
   count(gender, sod_type)
 ```
-**3.8: Explore and comment on the missing variables**
+**3.8 Explore and comment on the missing variables**
 ```{r}
 sum(is.na(Fulldataset))
 naniar::gg_miss_var((Fulldataset), facet = gender)
@@ -157,14 +157,14 @@ Fulldataset %>%
 
 ##There are 476 females and 126 males in the dataset, this could be an explanation for the big difference in NAs between the genders. 
 
-**3.9: Stratify the data by a categorical column and a report of min, max, mean and sd of a numeric column**
+**3.9 Stratify the data by a categorical column and a report of min, max, mean and sd of a numeric column**
 ```{r}
 Fulldataset %>% 
   group_by(gender) %>% 
   summarise(min(risk, na.rm = T),max(risk, na.rm = T), mean(risk, na.rm = T), sd(risk, na.rm = T))
 ```
 
-**3.10: Stratify the data using pipe by a categorical column and a report of min, max, mean and sd of a numeric column for a defined set of observations**
+**3.10 Stratify the data using pipe by a categorical column and a report of min, max, mean and sd of a numeric column for a defined set of observations**
 ```{r}
 Fulldataset %>% 
   group_by(gender) %>% 
@@ -197,7 +197,7 @@ Fulldataset %>%
 
 **4. Plotting the data (Day 7)**
 
-**4.1: Are there any correlated measurements?**
+**4.1 Are there any correlated measurements?**
 
 ##In our data set, only the age, antibody and risk are the numeric variables,so we can explore the correlation betwwen age, risk, antibody. So we will plot the correlations between age, risk and antibody. We can check the correlation by plotting the scatter plot of two variables first:
 
@@ -223,7 +223,7 @@ correlationmatrix <- corrplot(cor(df1,use="pairwise.complete.obs" ),
 
 ##Age and risk were weakly negatively correlated, antibody did not show statistically significant correlation with age or risk.
 
-**4.2: Does the age distribution depend on sod_type?** 
+**4.2 Does the age distribution depend on sod_type?** 
 
 ##age is numeric and sod_type is categorical
 ```{r}
@@ -243,7 +243,7 @@ ggplot(Fulldataset,
 
 ##In this dataset, the age tend to be older in Type1 than Type2 and 3. 
 
-**4.3: Does the age distribution of the patients depend on their sex (gender)?**
+**4.3 Does the age distribution of the patients depend on their sex (gender)?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(gender), y = age)) + 
@@ -253,7 +253,7 @@ ggplot(Fulldataset,
 
 ##The patients were older in the female group, and younger in the male group.
 
-**4.4: Does the risk score change with age of the patients?** 
+**4.4 Does the risk score change with age of the patients?** 
 
 ##Both variables are numerical
 ```{r}
@@ -265,7 +265,7 @@ ggplot(Fulldataset,
 
 ##it does look like that there is a relation between risk and age.  
 
-**4.5: Does the aspirin usage depend on the age?**
+**4.5 Does the aspirin usage depend on the age?**
 
 ##checking if anyone taking both 81 and 325 mg aspirin (should be FALSE if nobody took both)
 ```{r}
@@ -328,7 +328,7 @@ ggplot(Fulldataset, aes(x=CheckCatAsp, y=age)) +
 
 **5. Statistical analysis (Day 8)**
 
-**5.1: Does the outcome depend on the site where the procedure was performed?**
+**5.1 Does the outcome depend on the site where the procedure was performed?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(site), y = outcome)) + 
@@ -355,7 +355,7 @@ glm.1 %>%
 
 ##The outcome is significant different in site 1 compared to site 2. Site 3 and 4 has a negative trend which however is not significant, this is due to low numbers in sample. 
 
-**5.2: Does the outcome depend on the gender of the patient?**
+**5.2 Does the outcome depend on the gender of the patient?**
 ```{r}
 ggplot(Fulldataset,
        aes(x = as.factor(gender), y = outcome)) + 
@@ -368,7 +368,7 @@ Binom_Dataset %>%
 
 ##We are using logistic regression for the same reason as for task 1. There is no significant difference between gender and outcome. 
 
-**5.3: Does the outcome depend on whether there was a trainee present during the procedure?**
+**5.3 Does the outcome depend on whether there was a trainee present during the procedure?**
 ```{r}
 Fulldataset$outcome <- as.factor(Fulldataset$outcome)
 Fulldataset <- Fulldataset %>% 
@@ -383,7 +383,7 @@ print(logitfit)
 
 ##The outcome variable is binary variable (no/yes), and the train variable is also factor variable (0/1), so we used logistic regression to explore the association between trainee present and outcome.First, we assigned the outcome variable (no/yes) to (0/1) for logistic regression. From the p value and confidence interval, we concluded that the trainee present is associated with the outcome. The coefficient less than 1, compare to trainee not involved, the trainee present seems has a lower relative risk than those without trainee involvement.
 
-**5.4: According to the data, was the indomethacin reducing the risk of pancreatitis?**
+**5.4 According to the data, was the indomethacin reducing the risk of pancreatitis?**
 ```{r}
 Fulldataset %>% 
   ggplot(aes(x = rx, y = risk)) +
